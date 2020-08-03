@@ -1,0 +1,9 @@
+# Folders
+_obj
+_test
+.vscode/*
+.idea/*
+Library/
+vendor/
+bin/
+*.tar.gz
