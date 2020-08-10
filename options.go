@@ -1,11 +1,24 @@
 package edge_driver_go
 
-var defaultServerOptions = options{}
+import uuid "github.com/satori/go.uuid"
+
+var defaultServerOptions = options{
+	Name:            "driver-" + uuid.NewV4().String(),
+	Services:        []string{},
+	ServiceCall:     nil,
+	UserServiceCall: nil,
+	Broker:          "tcp://127.0.0.1:1883",
+	Logger:          newLogger(),
+}
 
 type options struct {
-	Name     string   //驱动名称
-	Broker   string   `json:"broker"`   //hub地址
-	Services []string `json:"services"` //服务定义
+	Name            string          `json:"name"`        //driver name
+	Broker          string          `json:"broker"`      //hub address
+	MetaBroker      string          `json:"meta_broker"` //meta service address
+	Services        []string        `json:"services"`    //service define
+	ServiceCall     CallService     //service call func
+	UserServiceCall UserCallService //user service call func
+	Logger          Logger          //logger
 }
 
 type ServerOption interface {
@@ -41,8 +54,29 @@ func SetBroker(url string) ServerOption {
 }
 
 //设置服务调用方法
-func SetServices(services []string) ServerOption {
+func SetRegisterServices(services []string) ServerOption {
 	return newFuncServerOption(func(i *options) {
 		i.Services = services
+	})
+}
+
+//设置服务调用回调
+func SetCallService(call CallService) ServerOption {
+	return newFuncServerOption(func(i *options) {
+		i.ServiceCall = call
+	})
+}
+
+//设置自定义格式回调
+func SetUserCallService(call UserCallService) ServerOption {
+	return newFuncServerOption(func(i *options) {
+		i.UserServiceCall = call
+	})
+}
+
+//设置自定义格式回调
+func SetLogger(logger Logger) ServerOption {
+	return newFuncServerOption(func(i *options) {
+		i.Logger = logger
 	})
 }
