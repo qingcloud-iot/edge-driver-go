@@ -88,18 +88,22 @@ func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 		buf  []byte
 		err  error
 	)
+	defer func() {
+		if err != nil {
+			if e.logger != nil {
+				e.logger.Error(topic, err.Error())
+			}
+		}
+	}()
 	name, err = msg.parseServiceName(topic)
 	if err != nil {
-		if e.logger != nil {
-			e.logger.Error(topic, err.Error())
-		}
 		return
 	}
 	req, err = msg.parseServiceMsg(payload)
 	if err != nil {
-		if e.logger != nil {
-			e.logger.Error(topic, err.Error())
-		}
+		return
+	}
+	if err = e.validate.validateService(context.Background(), e.deviceId, name, req.Params); err != nil {
 		return
 	}
 	if e.logger != nil {
@@ -116,9 +120,6 @@ func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 	}
 	buf, err = json.Marshal(resp)
 	if err != nil {
-		if e.logger != nil {
-			e.logger.Error(topic, err.Error())
-		}
 		return
 	}
 	if token := e.client.Publish(topic+"_reply", byte(0), false, buf); token.WaitTimeout(5*time.Second) && token.Error() != nil {

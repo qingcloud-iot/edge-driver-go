@@ -7,6 +7,7 @@ var defaultServerOptions = options{
 	edgeServices:    []string{},
 	edgeServiceCall: nil,
 	endServiceCall:  nil,
+	metaBroker:      "",
 	broker:          "tcp://127.0.0.1:1883",
 	logger:          newLogger(),
 }
@@ -62,7 +63,7 @@ func SetRegisterServices(services []string) ServerOption {
 }
 
 //set edge service callback
-func SetEdgeCallService(call CallService) ServerOption {
+func SetEdgeCallService(call EdgeCallService) ServerOption {
 	return newFuncServerOption(func(i *options) {
 		i.edgeServiceCall = call
 	})
@@ -85,6 +86,6 @@ func SetURL(url string) ServerOption {
 //set logger
 func SetLogger(logger Logger) ServerOption {
 	return newFuncServerOption(func(i *options) {
-		i.Logger = logger
+		i.logger = logger
 	})
 }
