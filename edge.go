@@ -2,6 +2,8 @@ package edge_driver_go
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	uuid "github.com/satori/go.uuid"
 	"sync/atomic"
@@ -9,13 +11,18 @@ import (
 )
 
 type edgeDriver struct {
-	ctx      context.Context
-	cancel   context.CancelFunc
-	validate validate
-	client   mqtt.Client //hub client
-	status   uint32      //0:not connected, 1:connected
-	url      string      //meta address
-	logger   Logger
+	ctx             context.Context
+	cancel          context.CancelFunc
+	validate        validate
+	client          mqtt.Client //hub client
+	status          uint32      //0:not connected, 1:connected
+	url             string      //meta address
+	deviceId        string
+	thingId         string
+	edgeServiceCall EdgeCallService //service call func
+	endServiceCall  CallService     //service call func
+	userServiceCall UserCallService //user service call func
+	logger          Logger
 }
 
 // edge sdk init
@@ -26,16 +33,19 @@ func NewClient(opt ...ServerOption) Client {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	edge := &edgeDriver{
-		validate: newDataValidate(),
-		logger:   opts.Logger,
-		ctx:      ctx,
-		cancel:   cancel,
+		validate:        newDataValidate(),
+		edgeServiceCall: opts.edgeServiceCall,
+		endServiceCall:  opts.endServiceCall,
+		userServiceCall: opts.userServiceCall,
+		logger:          opts.logger,
+		ctx:             ctx,
+		cancel:          cancel,
 	}
 	options := mqtt.NewClientOptions()
-	options.AddBroker(opts.Broker)
-	options.SetClientID(opts.Name + uuid.NewV4().String())
-	options.SetUsername(opts.Name + uuid.NewV4().String())
-	options.SetPassword(opts.Name)
+	options.AddBroker(opts.broker)
+	options.SetClientID(opts.name + uuid.NewV4().String())
+	options.SetUsername(opts.name + uuid.NewV4().String())
+	options.SetPassword(opts.name)
 	options.SetCleanSession(true)
 	options.SetAutoReconnect(true)
 	options.SetKeepAlive(30 * time.Second)
@@ -48,32 +58,82 @@ func NewClient(opt ...ServerOption) Client {
 	})
 	options.SetOnConnectHandler(func(client mqtt.Client) {
 		if edge.logger != nil {
-			edge.logger.Warn("edge reconnect success")
+			edge.logger.Warn("edge connect success call")
 		}
 		atomic.StoreUint32(&edge.status, hubConnected)
-		for _, v := range opts.Services {
+		//edge service
+		for _, v := range opts.edgeServices {
 			if token := edge.client.Subscribe(v, byte(0), func(client mqtt.Client, i mqtt.Message) {
-				edge.call(i.Topic(), i.Payload())
+				edge.edgeCall(i.Topic(), i.Payload())
 			}); token.Wait() && token.Error() != nil {
 				if edge.logger != nil {
 					edge.logger.Warn("edge sub error")
 				}
 			}
 		}
+		//end service
 	})
 	client := mqtt.NewClient(options)
 	go edge.connect(client) //reconnected
 	edge.client = client
 	return edge
 }
-func (e *edgeDriver) call(topic string, payload []byte) {
+func (e *edgeDriver) edgeCall(topic string, payload []byte) {
+	var (
+		msg  message
+		req  *serviceRequest
+		name string
+		data Metadata
+		resp *serviceReply
+		buf  []byte
+		err  error
+	)
+	name, err = msg.parseServiceName(topic)
+	if err != nil {
+		if e.logger != nil {
+			e.logger.Error(topic, err.Error())
+		}
+		return
+	}
+	req, err = msg.parseServiceMsg(payload)
+	if err != nil {
+		if e.logger != nil {
+			e.logger.Error(topic, err.Error())
+		}
+		return
+	}
 	if e.logger != nil {
 		e.logger.Warn(topic, payload)
+	}
+	resp = &serviceReply{
+		Id:   req.Id,
+		Code: RPC_SUCCESS,
+		Data: make(Metadata),
+	}
+	if e.edgeServiceCall != nil {
+		data, err = e.edgeServiceCall(name, req.Params)
+		resp.Data = data
+	}
+	buf, err = json.Marshal(resp)
+	if err != nil {
+		if e.logger != nil {
+			e.logger.Error(topic, err.Error())
+		}
+		return
+	}
+	if token := e.client.Publish(topic+"_reply", byte(0), false, buf); token.WaitTimeout(5*time.Second) && token.Error() != nil {
+		if e.logger != nil {
+			e.logger.Error(fmt.Sprintf("requestServiceReply err:%s", token.Error()))
+		}
+	} else {
+		if e.logger != nil {
+			e.logger.Error(fmt.Sprintf("requestServiceReply  topic:%s,data:%s", topic+"_reply", string(buf)))
+		}
 	}
 	return
 }
 func (e *edgeDriver) getSubDevice(device string) (string, error) {
-	return "", nil
+	return "iott-1ac28fzjUM", nil
 }
 func (e *edgeDriver) connect(client mqtt.Client) {
 	for {
@@ -82,7 +142,7 @@ func (e *edgeDriver) connect(client mqtt.Client) {
 			return
 		default:
 		}
-		if token := client.Connect(); !token.Wait() && token.Error() != nil {
+		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			if e.logger != nil {
 				e.logger.Warn("edge connect retry......")
 			}

@@ -5,6 +5,13 @@ import "errors"
 const (
 	messageVersion = "v0.0.1"
 )
+
+const (
+	RPC_SUCCESS = 200  //success
+	RPC_FAIL    = 201  //unkonw fail
+	RPC_TIMEOUT = 1001 // rpc timeout
+)
+
 const (
 	hubNotConnected = 0 //not connected
 	hubConnected    = 1 //connected
@@ -21,6 +28,7 @@ const (
 var (
 	notConnected    = errors.New("not connected")
 	pubMessageError = errors.New("pub message fail")
+	topicError      = errors.New("parse topic error")
 )
 
 //device status report
@@ -61,4 +69,14 @@ type thingEventMsg struct {
 type eventData struct {
 	Value Metadata `json:"value"`
 	Time  int64    `json:"time"`
+}
+type serviceRequest struct {
+	Id      string   `json:"id"`
+	Version string   `json:"version"`
+	Params  Metadata `json:"params"`
+}
+type serviceReply struct {
+	Code int         `json:"code"`
+	Id   string      `json:"id"`
+	Data interface{} `json:"data"`
 }

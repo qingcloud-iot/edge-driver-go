@@ -5,7 +5,8 @@ import "context"
 //validate device thing model
 type validate interface {
 	validateProperties(ctx context.Context, deviceId string, metadata Metadata) error
-	validateEvents(ctx context.Context, deviceId string, eventName string, metadata Metadata) error
+	validateEvent(ctx context.Context, deviceId string, eventName string, metadata Metadata) error
+	validateService(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error
 }
 
 //validate device thing model
@@ -19,6 +20,9 @@ func newDataValidate() validate {
 func (v *dataValidate) validateProperties(ctx context.Context, deviceId string, metadata Metadata) error {
 	return nil
 }
-func (v *dataValidate) validateEvents(ctx context.Context, deviceId string, eventName string, metadata Metadata) error {
+func (v *dataValidate) validateEvent(ctx context.Context, deviceId string, eventName string, metadata Metadata) error {
+	return nil
+}
+func (v *dataValidate) validateService(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error {
 	return nil
 }

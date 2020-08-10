@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
+	"strings"
 	"time"
 )
 
+const (
+	edgeServiceLen = 8
+)
 const (
 	deviceStatusReport     = "/as/mqtt/status/%s/%s"
 	devicePropertiesReport = "/sys/%s/%s/thing/property/platform/post"
@@ -86,4 +90,19 @@ func (m message) buildEventMsg(deviceId, thingId string, eventName string, meta 
 	}
 	buf, _ := json.Marshal(message)
 	return buf
+}
+func (m message) parseServiceName(topic string) (string, error) {
+	kv := strings.Split(topic, "/")
+	if len(kv) != edgeServiceLen {
+		return "", topicError
+	}
+	return kv[6], nil
+}
+func (m message) parseServiceMsg(payload []byte) (*serviceRequest, error) {
+	message := &serviceRequest{}
+	err := json.Unmarshal(payload, message)
+	if err != nil {
+		return message, err
+	}
+	return message, nil
 }

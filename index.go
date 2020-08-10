@@ -4,11 +4,12 @@ import "context"
 
 type Metadata map[string]interface{}
 
-//service call
-type CallService func(ctx context.Context, name string, params Metadata) (Metadata, error)
+//edge service call
+type EdgeCallService func(name string, params Metadata) (Metadata, error)
+type CallService func(deviceId, name string, params Metadata) (Metadata, error)
 
 //user service call
-type UserCallService func(ctx context.Context, data []byte) ([]byte, error)
+type UserCallService func(data []byte) ([]byte, error)
 
 //config change call
 type ConfigChangeFunc func(config interface{})
