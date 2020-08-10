@@ -240,7 +240,7 @@ func (e *edgeDriver) ReportProperties(ctx context.Context, deviceId string, para
 	}
 	return nil
 }
-func (e *edgeDriver) ReportEvents(ctx context.Context, deviceId string, eventName string, params Metadata) error {
+func (e *edgeDriver) ReportEvent(ctx context.Context, deviceId string, eventName string, params Metadata) error {
 	var (
 		topic   string
 		msg     message
@@ -248,7 +248,7 @@ func (e *edgeDriver) ReportEvents(ctx context.Context, deviceId string, eventNam
 		thingId string
 		err     error
 	)
-	if err = e.validate.validateEvents(ctx, deviceId, eventName, params); err != nil {
+	if err = e.validate.validateEvent(ctx, deviceId, eventName, params); err != nil {
 		return err
 	}
 	if atomic.LoadUint32(&e.status) == hubNotConnected {
