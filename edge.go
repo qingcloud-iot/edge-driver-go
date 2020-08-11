@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020 Yunify, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this work except in compliance with the License.
+ * You may obtain a copy of the License in the LICENSE file, or at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package edge_driver_go
 
 import (
@@ -5,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
-	uuid "github.com/satori/go.uuid"
 	"sync/atomic"
 	"time"
 )
@@ -42,37 +56,37 @@ func NewClient(opt ...ServerOption) Client {
 		cancel:          cancel,
 	}
 	options := mqtt.NewClientOptions()
-	options.AddBroker(opts.broker)
-	options.SetClientID(opts.name + uuid.NewV4().String())
-	options.SetUsername(opts.name + uuid.NewV4().String())
-	options.SetPassword(opts.name)
-	options.SetCleanSession(true)
-	options.SetAutoReconnect(true)
-	options.SetKeepAlive(30 * time.Second)
-	options.SetConnectionLostHandler(func(client mqtt.Client, e error) {
-		if edge.logger != nil {
-			edge.logger.Warn("edge connect lost")
-		}
-		//heartbeat lost
-		atomic.StoreUint32(&edge.status, hubNotConnected)
-	})
-	options.SetOnConnectHandler(func(client mqtt.Client) {
-		if edge.logger != nil {
-			edge.logger.Warn("edge connect success call")
-		}
-		atomic.StoreUint32(&edge.status, hubConnected)
-		//edge service
-		for _, v := range opts.edgeServices {
-			if token := edge.client.Subscribe(v, byte(0), func(client mqtt.Client, i mqtt.Message) {
-				edge.edgeCall(i.Topic(), i.Payload())
-			}); token.Wait() && token.Error() != nil {
-				if edge.logger != nil {
-					edge.logger.Warn("edge sub error")
+	options.AddBroker(opts.broker).
+		SetClientID(opts.name).
+		SetUsername(opts.name).
+		SetPassword(opts.name).
+		SetCleanSession(true).
+		SetAutoReconnect(true).
+		SetKeepAlive(30 * time.Second).
+		SetConnectionLostHandler(func(client mqtt.Client, e error) {
+			if edge.logger != nil {
+				edge.logger.Warn("edge connect lost")
+			}
+			//heartbeat lost
+			atomic.StoreUint32(&edge.status, hubNotConnected)
+		}).
+		SetOnConnectHandler(func(client mqtt.Client) {
+			if edge.logger != nil {
+				edge.logger.Warn("edge connect success call")
+			}
+			atomic.StoreUint32(&edge.status, hubConnected)
+			//edge service
+			for _, v := range opts.edgeServices {
+				if token := edge.client.Subscribe(v, byte(0), func(client mqtt.Client, i mqtt.Message) {
+					edge.edgeCall(i.Topic(), i.Payload())
+				}); token.Wait() && token.Error() != nil {
+					if edge.logger != nil {
+						edge.logger.Warn("edge sub error")
+					}
 				}
 			}
-		}
-		//end service
-	})
+			//end service
+		})
 	client := mqtt.NewClient(options)
 	go edge.connect(client) //reconnected
 	edge.client = client
@@ -115,7 +129,9 @@ func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 		Data: make(Metadata),
 	}
 	if e.edgeServiceCall != nil {
-		data, err = e.edgeServiceCall(name, req.Params)
+		if data, err = e.edgeServiceCall(name, req.Params); err != nil {
+			resp.Code = RPC_FAIL
+		}
 		resp.Data = data
 	}
 	buf, err = json.Marshal(resp)
