@@ -22,9 +22,8 @@ const (
 )
 
 const (
-	RPC_SUCCESS = 200  //success
-	RPC_FAIL    = 201  //unkonw fail
-	RPC_TIMEOUT = 1001 // rpc timeout
+	RPC_SUCCESS = 200 //success
+	RPC_FAIL    = 201 //rpc timeout
 )
 
 const (
@@ -41,7 +40,7 @@ const (
 )
 
 var (
-	notConnected    = errors.New("not connected")
+	notConnected    = errors.New("hub not connected")
 	pubMessageError = errors.New("pub message fail")
 	topicError      = errors.New("parse topic error")
 )

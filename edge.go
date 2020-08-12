@@ -117,7 +117,7 @@ func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 	if err != nil {
 		return
 	}
-	if err = e.validate.validateService(context.Background(), e.deviceId, name, req.Params); err != nil {
+	if err = e.validate.validateServiceInput(context.Background(), e.deviceId, name, req.Params); err != nil {
 		return
 	}
 	if e.logger != nil {
@@ -130,6 +130,9 @@ func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 	}
 	if e.edgeServiceCall != nil {
 		if data, err = e.edgeServiceCall(name, req.Params); err != nil {
+			resp.Code = RPC_FAIL
+		}
+		if err = e.validate.validateServiceOutput(context.Background(), e.deviceId, name, data); err != nil {
 			resp.Code = RPC_FAIL
 		}
 		resp.Data = data

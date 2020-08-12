@@ -21,7 +21,8 @@ import "context"
 type validate interface {
 	validateProperties(ctx context.Context, deviceId string, metadata Metadata) error
 	validateEvent(ctx context.Context, deviceId string, eventName string, metadata Metadata) error
-	validateService(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error
+	validateServiceInput(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error
+	validateServiceOutput(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error
 }
 
 //validate device thing model
@@ -38,6 +39,9 @@ func (v *dataValidate) validateProperties(ctx context.Context, deviceId string, 
 func (v *dataValidate) validateEvent(ctx context.Context, deviceId string, eventName string, metadata Metadata) error {
 	return nil
 }
-func (v *dataValidate) validateService(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error {
+func (v *dataValidate) validateServiceInput(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error {
+	return nil
+}
+func (v *dataValidate) validateServiceOutput(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error {
 	return nil
 }
