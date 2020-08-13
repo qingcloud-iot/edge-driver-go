@@ -106,12 +106,12 @@ func (m message) buildEventMsg(deviceId, thingId string, eventName string, meta 
 	buf, _ := json.Marshal(message)
 	return buf
 }
-func (m message) parseServiceName(topic string) (string, error) {
+func (m message) parseServiceName(topic string) (string, string, error) {
 	kv := strings.Split(topic, "/")
 	if len(kv) != edgeServiceLen {
-		return "", topicError
+		return "", "", topicError
 	}
-	return kv[6], nil
+	return kv[2], kv[6], nil
 }
 func (m message) parseServiceMsg(payload []byte) (*serviceRequest, error) {
 	message := &serviceRequest{}

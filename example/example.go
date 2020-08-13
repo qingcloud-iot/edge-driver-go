@@ -15,10 +15,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	time.Sleep(5 * time.Second)
-	err = client.Offline(context.Background(), "iotd-b85f3264-f58e-49c6-aa4a-75de98c9c214")
-	if err != nil {
-		fmt.Println(err)
-	}
+
 	select {}
 }

@@ -42,3 +42,15 @@ type Client interface {
 	GetProperties(context.Context, []string) (Metadata, error)   //获取设备属性
 	Close() error                                                //销毁驱动
 }
+type configMessage interface {
+	GetDeviceId() string
+	GetThingId() string
+	GetServices() []string
+	GetMetadata() map[string]interface{}
+}
+
+//cache
+type configCache interface {
+	GetEndDevicesConfig(context.Context) ([]configMessage, error)
+	GetEndDeviceConfig(context.Context, string) (configMessage, error)
+}

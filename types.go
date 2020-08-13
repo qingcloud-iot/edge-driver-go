@@ -38,6 +38,9 @@ const (
 	devicePropertyType = "thing.property.post"
 	deviceEventType    = "thing.event.%s.post"
 )
+const (
+	message_notify = "/iot/config/change"
+)
 
 var (
 	notConnected    = errors.New("hub not connected")

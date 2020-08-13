@@ -27,12 +27,16 @@ import (
 type edgeDriver struct {
 	ctx             context.Context
 	cancel          context.CancelFunc
+	name            string
+	broker          string
 	validate        validate
 	client          mqtt.Client //hub client
 	status          uint32      //0:not connected, 1:connected
 	url             string      //meta address
+	edgeServices    []string    `json:"services"` //edge service define
 	deviceId        string
 	thingId         string
+	cache           configCache
 	edgeServiceCall EdgeCallService //service call func
 	endServiceCall  CallService     //service call func
 	userServiceCall UserCallService //user service call func
@@ -51,46 +55,157 @@ func NewClient(opt ...ServerOption) Client {
 		edgeServiceCall: opts.edgeServiceCall,
 		endServiceCall:  opts.endServiceCall,
 		userServiceCall: opts.userServiceCall,
+		cache:           newCache(opts.metaBroker),
+		name:            opts.name,
+		broker:          opts.broker,
 		logger:          opts.logger,
 		ctx:             ctx,
 		cancel:          cancel,
 	}
+	edge.init()
+	return edge
+}
+func (e *edgeDriver) init() {
 	options := mqtt.NewClientOptions()
-	options.AddBroker(opts.broker).
-		SetClientID(opts.name).
-		SetUsername(opts.name).
-		SetPassword(opts.name).
+	options.AddBroker(e.broker).
+		SetClientID(e.name).
+		SetUsername(e.name).
+		SetPassword(e.name).
 		SetCleanSession(true).
 		SetAutoReconnect(true).
 		SetKeepAlive(30 * time.Second).
-		SetConnectionLostHandler(func(client mqtt.Client, e error) {
-			if edge.logger != nil {
-				edge.logger.Warn("edge connect lost")
+		SetConnectionLostHandler(func(client mqtt.Client, err error) {
+			if e.logger != nil {
+				e.logger.Warn("edge connect lost")
 			}
 			//heartbeat lost
-			atomic.StoreUint32(&edge.status, hubNotConnected)
+			atomic.StoreUint32(&e.status, hubNotConnected)
 		}).
 		SetOnConnectHandler(func(client mqtt.Client) {
-			if edge.logger != nil {
-				edge.logger.Warn("edge connect success call")
+			if e.logger != nil {
+				e.logger.Warn("edge connect success call")
 			}
-			atomic.StoreUint32(&edge.status, hubConnected)
+			atomic.StoreUint32(&e.status, hubConnected)
 			//edge service
-			for _, v := range opts.edgeServices {
-				if token := edge.client.Subscribe(v, byte(0), func(client mqtt.Client, i mqtt.Message) {
-					edge.edgeCall(i.Topic(), i.Payload())
-				}); token.Wait() && token.Error() != nil {
-					if edge.logger != nil {
-						edge.logger.Warn("edge sub error")
-					}
+			if err := e.edgeServiceInit(e.edgeServices); err != nil {
+				if e.logger != nil {
+					e.logger.Error(err.Error())
 				}
 			}
 			//end service
+			if info, err := e.cache.GetEndDevicesConfig(e.ctx); err != nil {
+				for _, v := range info {
+					if err := e.endServiceInit(v.GetServices()); err != nil {
+						if e.logger != nil {
+							e.logger.Error(err.Error())
+						}
+					}
+				}
+			}
+			e.client.Subscribe(message_notify, byte(0), func(client mqtt.Client, i mqtt.Message) {
+				if e.logger != nil {
+					e.logger.Warn("client restart ", i.Topic(), i.Payload())
+				}
+				go e.restart()
+			})
 		})
 	client := mqtt.NewClient(options)
-	go edge.connect(client) //reconnected
-	edge.client = client
-	return edge
+	go e.connect(client) //reconnected
+	e.client = client
+}
+func (e *edgeDriver) restart() {
+	e.client.Disconnect(250)
+	e.init()
+}
+
+//register end service
+func (e *edgeDriver) endServiceInit(topics []string) error {
+	filters := make(map[string]byte)
+	for _, v := range topics {
+		filters[v] = byte(0)
+	}
+	token := e.client.SubscribeMultiple(filters, func(client mqtt.Client, message mqtt.Message) {
+		e.endCall(message.Topic(), message.Payload())
+	})
+	if token.Wait() && token.Error() != nil {
+		return token.Error()
+	}
+	return nil
+}
+func (e *edgeDriver) endCall(topic string, payload []byte) {
+	var (
+		msg      message
+		req      *serviceRequest
+		name     string
+		deviceId string
+		data     Metadata
+		resp     *serviceReply
+		buf      []byte
+		err      error
+	)
+	defer func() {
+		if err != nil {
+			if e.logger != nil {
+				e.logger.Error(topic, err.Error())
+			}
+		}
+	}()
+	deviceId, name, err = msg.parseServiceName(topic)
+	if err != nil {
+		return
+	}
+	req, err = msg.parseServiceMsg(payload)
+	if err != nil {
+		return
+	}
+	if err = e.validate.validateServiceInput(context.Background(), deviceId, name, req.Params); err != nil {
+		return
+	}
+	if e.logger != nil {
+		e.logger.Warn(topic, payload)
+	}
+	resp = &serviceReply{
+		Id:   req.Id,
+		Code: RPC_SUCCESS,
+		Data: make(Metadata),
+	}
+	if e.edgeServiceCall != nil {
+		if data, err = e.endServiceCall(deviceId, name, req.Params); err != nil {
+			resp.Code = RPC_FAIL
+		}
+		if err = e.validate.validateServiceOutput(context.Background(), deviceId, name, data); err != nil {
+			resp.Code = RPC_FAIL
+		}
+		resp.Data = data
+	}
+	buf, err = json.Marshal(resp)
+	if err != nil {
+		return
+	}
+	if token := e.client.Publish(topic+"_reply", byte(0), false, buf); token.WaitTimeout(5*time.Second) && token.Error() != nil {
+		if e.logger != nil {
+			e.logger.Error(fmt.Sprintf("requestServiceReply err:%s", token.Error()))
+		}
+	} else {
+		if e.logger != nil {
+			e.logger.Error(fmt.Sprintf("requestServiceReply  topic:%s,data:%s", topic+"_reply", string(buf)))
+		}
+	}
+}
+
+//register end service
+func (e *edgeDriver) edgeServiceInit(topics []string) error {
+	filters := make(map[string]byte)
+	for _, v := range topics {
+		filters[v] = byte(0)
+	}
+	token := e.client.SubscribeMultiple(filters, func(client mqtt.Client, message mqtt.Message) {
+		e.edgeCall(message.Topic(), message.Payload())
+	})
+	if token.Wait() && token.Error() != nil {
+		return token.Error()
+	}
+	return nil
 }
 func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 	var (
@@ -109,7 +224,7 @@ func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 			}
 		}
 	}()
-	name, err = msg.parseServiceName(topic)
+	_, name, err = msg.parseServiceName(topic)
 	if err != nil {
 		return
 	}
@@ -152,7 +267,7 @@ func (e *edgeDriver) edgeCall(topic string, payload []byte) {
 	}
 	return
 }
-func (e *edgeDriver) getSubDevice(device string) (string, error) {
+func (e *edgeDriver) getSubDevice(deviceId string) (string, error) {
 	return "iott-1ac28fzjUM", nil
 }
 func (e *edgeDriver) connect(client mqtt.Client) {
