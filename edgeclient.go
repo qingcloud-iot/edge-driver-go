@@ -202,11 +202,12 @@ func (e *edgeClient) endCall(topic string, payload []byte) {
 	if e.edgeServiceCall != nil {
 		if data, err = e.endServiceCall(deviceId, methodName, req.Params); err != nil {
 			resp.Code = RPC_FAIL
+		} else {
+			resp.Data = data
 		}
 		if err = e.validate.validateServiceOutput(context.Background(), deviceId, methodName, data); err != nil {
 			resp.Code = RPC_FAIL
 		}
-		resp.Data = data
 	}
 	buf, err = json.Marshal(resp)
 	if err != nil {
