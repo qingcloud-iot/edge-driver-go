@@ -27,9 +27,13 @@ const (
 	edgeServiceLen = 8
 )
 const (
+	deviceSetProperty      = "/sys/%s/%s/thing/property/base/set"
+	deviceGetProperty      = "/sys/%s/%s/thing/property/base/get"
+	deviceServiceProperty  = "/sys/%s/%s/thing/service/%s/call"
 	deviceStatusReport     = "/as/mqtt/status/%s/%s"
 	devicePropertiesReport = "/sys/%s/%s/thing/property/platform/post"
 	deviceEventsReport     = "/sys/%s/%s/thing/event/%s/post"
+	configChange           = "/iot/internal/notify/+"
 )
 
 type message struct {
@@ -40,9 +44,28 @@ func (m message) buildStatusTopic(deviceId, thingId string) string {
 	return fmt.Sprintf(deviceStatusReport, thingId, deviceId)
 }
 
+//build device set topic
+func (m message) buildSetTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(deviceSetProperty, thingId, deviceId)
+}
+
+//build device get topic
+func (m message) buildGetTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(deviceGetProperty, thingId, deviceId)
+}
+
+//build device get topic
+func (m message) buildServiceTopic(deviceId, thingId string, services []string) []string {
+	result := make([]string, len(services))
+	for k, v := range services {
+		result[k] = fmt.Sprintf(deviceServiceProperty, thingId, deviceId, v)
+	}
+	return result
+}
+
 // build device status struct
 func (m message) buildHeartbeatMsg(deviceId, thingId, status string) []byte {
-	data := &DeviceStatus{
+	data := &deviceStatus{
 		DeviceId: deviceId,
 		ThingId:  thingId,
 		Status:   status,
@@ -106,15 +129,23 @@ func (m message) buildEventMsg(deviceId, thingId string, eventName string, meta 
 	buf, _ := json.Marshal(message)
 	return buf
 }
-func (m message) parseServiceName(topic string) (string, string, error) {
+func (m message) parseServiceMethod(topic string) (string, string, error) {
 	kv := strings.Split(topic, "/")
 	if len(kv) != edgeServiceLen {
 		return "", "", topicError
 	}
 	return kv[2], kv[6], nil
 }
-func (m message) parseServiceMsg(payload []byte) (*serviceRequest, error) {
+func (m message) parseResponseMsg(payload []byte) (*serviceRequest, error) {
 	message := &serviceRequest{}
+	err := json.Unmarshal(payload, message)
+	if err != nil {
+		return message, err
+	}
+	return message, nil
+}
+func (m message) parseGetServiceMsg(payload []byte) (*serviceGetRequest, error) {
+	message := &serviceGetRequest{}
 	err := json.Unmarshal(payload, message)
 	if err != nil {
 		return message, err

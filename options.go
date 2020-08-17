@@ -15,27 +15,23 @@
  */
 package edge_driver_go
 
-import uuid "github.com/satori/go.uuid"
-
 var defaultServerOptions = options{
-	name:            "driver-" + uuid.NewV4().String(),
-	edgeServices:    []string{},
-	edgeServiceCall: nil,
+	//edgeServiceCall: nil,
 	endServiceCall:  nil,
-	metaBroker:      "",
-	broker:          "tcp://127.0.0.1:1883",
+	userServiceCall: nil,
+	setServiceCall:  nil,
+	getServiceCall:  nil,
 	logger:          newLogger(),
 }
 
 type options struct {
-	name            string          `json:"name"`        //driver name
-	broker          string          `json:"broker"`      //hub address
-	metaBroker      string          `json:"meta_broker"` //meta service address
-	edgeServices    []string        `json:"services"`    //edge service define
-	edgeServiceCall EdgeCallService //service call func
-	endServiceCall  CallService     //service call func
-	userServiceCall UserCallService //user service call func
-	logger          Logger          //logger
+	//module Module
+	//edgeServiceCall OnEdgeServiceCall 			//service call func
+	endServiceCall  OnEndServiceCall  //service call func
+	userServiceCall OnUserServiceCall //user service call func
+	setServiceCall  OnSetServiceCall  //set service call func
+	getServiceCall  OnGetServiceCall  //get service call func
+	logger          Logger            //logger
 }
 
 type ServerOption interface {
@@ -56,45 +52,29 @@ func newFuncServerOption(f func(*options)) *funcOption {
 	}
 }
 
-//set driver name
-func SetName(name string) ServerOption {
+//func SetEdgeServiceCall(call OnEdgeServiceCall) ServerOption {
+//	return newFuncServerOption(func(i *options) {
+//		i.edgeServiceCall = call
+//	})
+//}
+func SetSetServiceCall(call OnSetServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
-		i.name = name
+		i.setServiceCall = call
 	})
 }
-
-//set hub client
-func SetBroker(url string) ServerOption {
+func SetGetServiceCall(call OnGetServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
-		i.broker = url
+		i.getServiceCall = call
 	})
 }
-
-//register service
-func SetRegisterServices(services []string) ServerOption {
+func SetEndServiceCall(call OnEndServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
-		i.edgeServices = services
+		i.endServiceCall = call
 	})
 }
-
-//set edge service callback
-func SetEdgeCallService(call EdgeCallService) ServerOption {
-	return newFuncServerOption(func(i *options) {
-		i.edgeServiceCall = call
-	})
-}
-
-//set user service callback
-func SetUserCallService(call UserCallService) ServerOption {
+func SetUserServiceCall(call OnUserServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
 		i.userServiceCall = call
-	})
-}
-
-//set user service callback
-func SetURL(url string) ServerOption {
-	return newFuncServerOption(func(i *options) {
-		i.metaBroker = url
 	})
 }
 

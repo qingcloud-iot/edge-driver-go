@@ -15,44 +15,41 @@
  */
 package edge_driver_go
 
-import "context"
-
 type config struct {
 	metadata map[string]interface{}
 	services []string
+	deviceId string
+	thingId  string
 }
 
-func NewConfig(services []string, metadata map[string]interface{}) configMessage {
-	return &config{
-		metadata: metadata,
-		services: services,
+func newConfig(token string) (DeviceConfig, error) {
+	var (
+		deviceId string
+		thingId  string
+		conf     DeviceConfig
+		err      error
+	)
+	if deviceId, thingId, err = parseToken(token); err != nil {
+		return nil, err
 	}
+	conf = &config{
+		deviceId: deviceId,
+		thingId:  thingId,
+	}
+	return conf, nil
 }
-func (c *config) GetDeviceId() string {
-	return ""
+func (c *config) update() error {
+	return nil
 }
-func (c *config) GetThingId() string {
-	return ""
+func (c *config) DeviceId() string {
+	return c.deviceId
 }
-func (c *config) GetServices() []string {
+func (c *config) ThingId() string {
+	return c.thingId
+}
+func (c *config) Services() []string {
 	return c.services
 }
-func (c *config) GetMetadata() map[string]interface{} {
+func (c *config) Metadata() map[string]interface{} {
 	return c.metadata
-}
-
-type cache struct {
-}
-
-func newCache(url string) configCache {
-	return &cache{}
-}
-func (c *cache) run() {
-}
-
-func (c *cache) GetEndDevicesConfig(ctx context.Context) ([]configMessage, error) {
-	return nil, nil
-}
-func (c *cache) GetEndDeviceConfig(ctx context.Context, id string) (configMessage, error) {
-	return NewConfig([]string{}, map[string]interface{}{}), nil
 }

@@ -20,37 +20,35 @@ import "context"
 type Metadata map[string]interface{}
 
 //edge service call
-type EdgeCallService func(name string, params Metadata) (Metadata, error)
-type CallService func(deviceId, name string, params Metadata) (Metadata, error)
+type OnEdgeServiceCall func(name string, args Metadata) (Metadata, error)
+type OnEndServiceCall func(deviceId, name string, args Metadata) (Metadata, error)
+
+//edge set and get
+type OnSetServiceCall func(args Metadata) error
+type OnGetServiceCall func(args []string) (Metadata, error)
 
 //user service call
-type UserCallService func(data []byte) ([]byte, error)
+type OnUserServiceCall func(data []byte) ([]byte, error)
 
 //config change call
-type ConfigChangeFunc func(config interface{})
+type ConfigChangeFunc func(config Metadata)
 
 //边端设备sdk接口
 type Client interface {
-	GetEdgeDeviceConfig(context.Context) error                   //获取边设备配置
-	GetEndDeviceConfig(context.Context) error                    //获取子设备配置
-	Online(context.Context, string) error                        //设备上线通知
-	Offline(context.Context, string) error                       //设备下线通知
-	ReportProperties(context.Context, string, Metadata) error    //上报属性
-	ReportEvent(context.Context, string, string, Metadata) error //上报事件
-	GetDriverInfo(context.Context) (interface{}, error)          //获取驱动配置
-	SetProperties(context.Context, Metadata) error               //设置设备属性
-	GetProperties(context.Context, []string) (Metadata, error)   //获取设备属性
-	Close() error                                                //销毁驱动
-}
-type configMessage interface {
-	GetDeviceId() string
-	GetThingId() string
-	GetServices() []string
-	GetMetadata() map[string]interface{}
+	Init() error                                         //初始化服务
+	Online(context.Context) error                        //设备上线通知
+	Offline(context.Context) error                       //设备下线通知
+	ReportProperties(context.Context, Metadata) error    //上报属性
+	ReportEvent(context.Context, string, Metadata) error //上报事件
 }
 
-//cache
-type configCache interface {
-	GetEndDevicesConfig(context.Context) ([]configMessage, error)
-	GetEndDeviceConfig(context.Context, string) (configMessage, error)
+type ConnectLost func(err error)
+type messageArrived func(topic string, payload []byte)
+
+//describe device info
+type DeviceConfig interface {
+	DeviceId() string                 //device id
+	ThingId() string                  //thing id
+	Services() []string               //end device service
+	Metadata() map[string]interface{} //device metadata
 }

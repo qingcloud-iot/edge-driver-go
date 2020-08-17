@@ -15,10 +15,19 @@
  */
 package edge_driver_go
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	messageVersion = "v0.0.1"
+	hubBroker      = "tcp://127.0.0.1:1883"
+	metadataBroker = "127.0.0.1:1889"
+)
+const (
+	MaxIdleConns        int = 100
+	MaxIdleConnsPerHost int = 100
+	IdleConnTimeout     int = 90
 )
 
 const (
@@ -49,7 +58,7 @@ var (
 )
 
 //device status report
-type DeviceStatus struct {
+type deviceStatus struct {
 	DeviceId string `json:"device_id"`
 	ThingId  string `json:"thing_id"`
 	Status   string `json:"status"`
@@ -91,6 +100,11 @@ type serviceRequest struct {
 	Id      string   `json:"id"`
 	Version string   `json:"version"`
 	Params  Metadata `json:"params"`
+}
+type serviceGetRequest struct {
+	Id      string   `json:"id"`
+	Version string   `json:"version"`
+	Params  []string `json:"params"`
 }
 type serviceReply struct {
 	Code int         `json:"code"`
