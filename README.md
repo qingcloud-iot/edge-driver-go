@@ -11,27 +11,55 @@
 其中,数据转换和数据和命令处理部分为可选,一种是转换成Qingcloud　IoT物模型规范格式数据，另外一种是将数据直接透传不做解析，直接上传云端
 
 ## 设备驱动分SDK接口
-
-### 驱动模块管理接口
-```go
-type Module interface{
-
-}
-```
 ### 驱动配置管理接口
+```go
+//获取设备相关信息
+func GetConfig() (Metadata, error)
+//获取驱动相关信息
+func GetDriverInfo() (Metadata, error)
+//设置连接丢失回调
+func SetConnectLost(call ConnectLost) {
+	getSessionIns().setConnectLost(call)
+}
+//设置配置变更回调
+func SetConfigChange(call ConfigChangeFunc) {
+	getSessionIns().setConfigChange(call)
+}
+
+```
 ### 子设备模块管理接口
 ```go
+//设备下行数据相关接口
+//设置属性设置接口
+func SetSetServiceCall(call OnSetServiceCall) ServerOption {
+	return newFuncServerOption(func(i *options) {
+		i.setServiceCall = call
+	})
+}
+//设置属性获取接口
+func SetGetServiceCall(call OnGetServiceCall) ServerOption {
+	return newFuncServerOption(func(i *options) {
+		i.getServiceCall = call
+	})
+}
+//设置终端设备服务调用接口
+func SetEndServiceCall(call OnEndServiceCall) ServerOption {
+	return newFuncServerOption(func(i *options) {
+		i.endServiceCall = call
+	})
+}
+//设置自定义格式设备接口
+func SetUserServiceCall(call OnUserServiceCall) ServerOption {
+	return newFuncServerOption(func(i *options) {
+		i.userServiceCall = call
+	})
+}
 //边端设备sdk接口
 type Client interface {
-	GetEdgeDeviceConfig(context.Context) error                   //获取边设备配置
-	GetEndDeviceConfig(context.Context) error                    //获取子设备配置
-	Online(context.Context, string) error                        //设备上线通知
-	Offline(context.Context, string) error                       //设备下线通知
-	ReportProperties(context.Context, string, Metadata) error    //上报属性
-	ReportEvent(context.Context, string, string, Metadata) error //上报事件
-	GetDriverInfo(context.Context) (interface{}, error)          //获取驱动配置
-	SetProperties(context.Context, Metadata) error               //设置设备属性
-	GetProperties(context.Context, []string) (Metadata, error)   //获取设备属性
-	Close() error                                                //销毁驱动
+	Init() error                                         //初始化服务
+	Online(context.Context) error                        //设备上线通知
+	Offline(context.Context) error                       //设备下线通知
+	ReportProperties(context.Context, Metadata) error    //上报属性
+	ReportEvent(context.Context, string, Metadata) error //上报事件
 }
 ```

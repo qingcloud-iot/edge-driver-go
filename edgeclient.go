@@ -242,6 +242,7 @@ func (e *edgeClient) Offline(context.Context) error {
 	data = msg.buildHeartbeatMsg(e.config.DeviceId(), e.config.ThingId(), offline)
 	return getSessionIns().publish(topic, data)
 }
+
 func (e *edgeClient) ReportProperties(ctx context.Context, params Metadata) error {
 	var (
 		topic string

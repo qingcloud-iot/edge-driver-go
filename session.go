@@ -38,6 +38,7 @@ func getSessionIns() *session {
 		_ins = &session{
 			client: nil,
 			status: hubNotConnected,
+			logger: newLogger(),
 		}
 		_ins.init()
 	})
@@ -57,6 +58,7 @@ type session struct {
 	status         uint32           //0:not connected, 1:connected
 	connectLost    ConnectLost      //connect lost callback
 	configChange   ConfigChangeFunc //config change
+	logger         Logger
 	//messageArrived messageArrived			//message callback
 }
 
@@ -68,19 +70,24 @@ func (s *session) init() {
 		SetPassword(driverName).
 		SetCleanSession(true).
 		SetAutoReconnect(true).
-		SetKeepAlive(60 * time.Second).
+		SetKeepAlive(30 * time.Second).
 		SetConnectionLostHandler(func(client mqtt.Client, err error) {
 			//heartbeat lost
 			atomic.StoreUint32(&s.status, hubNotConnected)
 			if s.connectLost != nil {
 				s.connectLost(err)
 			}
+			if s.logger != nil {
+				s.logger.Info("connect lost")
+			}
 		}).
 		SetOnConnectHandler(func(client mqtt.Client) {
 			atomic.StoreUint32(&s.status, hubConnected)
 			s.client.Subscribe(configChange, byte(0), func(client mqtt.Client, i mqtt.Message) {
-
 			})
+			if s.logger != nil {
+				s.logger.Info("connect success")
+			}
 		})
 	client := mqtt.NewClient(options)
 	s.connect(client) //reconnected
@@ -106,6 +113,9 @@ func (s *session) register(id string, client Client) {
 func (s *session) connect(client mqtt.Client) {
 	for {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
+			if s.logger != nil {
+				s.logger.Info("connect retry...")
+			}
 			time.Sleep(3 * time.Second)
 			continue
 		} else {
