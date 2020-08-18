@@ -20,7 +20,7 @@ import "context"
 type Metadata map[string]interface{}
 
 //edge service call
-type OnEdgeServiceCall func(name string, args Metadata) (Metadata, error)
+//type OnEdgeServiceCall func(name string, args Metadata) (Metadata, error)
 type OnEndServiceCall func(deviceId, name string, args Metadata) (Metadata, error)
 
 //edge set and get
@@ -35,7 +35,7 @@ type ConfigChangeFunc func(config Metadata)
 
 //边端设备sdk接口
 type Client interface {
-	//Init() error                                         //init
+	//Init() error                                       //init
 	Online(context.Context) error                        //report device online to cloud
 	Offline(context.Context) error                       //report device offline to cloud
 	ReportProperties(context.Context, Metadata) error    //report device property to cloud
@@ -47,8 +47,8 @@ type messageArrived func(topic string, payload []byte)
 
 //describe device info
 type DeviceConfig interface {
-	DeviceId() string                 //device id
-	ThingId() string                  //thing id
-	Services() []string               //end device service
+	DeviceId() string //device id
+	ThingId() string  //thing id
+	Services() []string
 	Metadata() map[string]interface{} //device metadata
 }

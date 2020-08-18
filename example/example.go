@@ -9,7 +9,13 @@ import (
 )
 
 func main() {
-	client := edge_driver_go.NewEdgeClient("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3IiOiIxIiwiYXVkIjoiaWFtIiwiYXpwIjoiaWFtIiwiZXhwIjoxNjI5MTg5NDM2LCJpYXQiOjE1OTc2NTM0MzYsImlzcyI6InN0cyIsImp0aSI6InM5aVM5UWdxS1E1bGxqZmxBdjJlYk8iLCJuYmYiOjAsIm9yZ2kiOiJpb3RkLWY0N2ZjOWMzLWZjNmYtNDhmYi1hZmNmLWMwNWUyMTJkNGYzYyIsIm93dXIiOiJ1c3ItQjBleFduMWciLCJzdWIiOiJzdHMiLCJ0aGlkIjoiaW90dC1ieHdjQWdRbEs4IiwidHlwIjoiSUQifQ.gbUZHOxcurzZhELfRmUvCb0rxbDbf9tOfpMyfr1eDN6DsOZD9f8BRmxZ6l00L0FM_ntqaiByqClJLg54Cx0_bNpLJkbCOuW9_6wBGg_X-QDJUeVGnfeLmcncAP28T0-maqU5o5FQKp6Z4mD5HTfay99QSyEoVBfxJVXwU-fv0ws")
+	var opts []edge_driver_go.ServerOption
+	opt := edge_driver_go.SetUserServiceCall(func(data []byte) (bytes []byte, e error) {
+		return []byte("success"), nil
+	})
+	opts = append(opts, opt)
+	client := edge_driver_go.NewEdgeClient("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3IiOiIxIiwiYXVkIjoiaWFtIiwiYXpwIjoiaWFtIiwiZXhwIjoxNjI5MzI4MDEyLCJpYXQiOjE1OTc3OTIwMTIsImlzcyI6InN0cyIsImp0aSI6InM5aVM5UWdxS1E1bGxqZmxBdjJmSW0iLCJuYmYiOjAsIm9yZ2kiOiJpb3RkLWQzNTllYjdlLWU4ZTUtNDAzYi1hZTRmLWU4MmUxMDczZjBlMiIsIm93dXIiOiJ1c3ItQjBleFduMWciLCJzdWIiOiJzdHMiLCJ0aGlkIjoiaW90dC1lbmQtdXNlci1zeXN0ZW0iLCJ0eXAiOiJJRCJ9.hOr5Dfmd_SKZkBIdBtwcL8kPu3nt4fWlTllVU8v6fQ7YDjPAfh5XyblmvoG5RdB5ZILEym7zgDXXotwRQBWEoG5ic1q6KnMhFc6dUU3TgYbm86RF5GnuQZwwc1f_cWteIjOGLIHPYRAAVd36nMFoVlJSUFXIGWXjChAY3vUrPp4",
+		opts...)
 	time.Sleep(2 * time.Second)
 	for {
 		err := client.Online(context.Background())
@@ -18,6 +24,10 @@ func main() {
 		}
 		time.Sleep(2 * time.Second)
 		err = client.ReportProperties(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()})
+		if err != nil {
+			fmt.Println(err)
+		}
+		err = client.ReportUserMessage(context.Background(), []byte{0x1, 0x2, 0x3})
 		if err != nil {
 			fmt.Println(err)
 		}

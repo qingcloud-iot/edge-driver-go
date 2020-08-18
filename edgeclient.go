@@ -22,11 +22,11 @@ import (
 )
 
 type edgeClient struct {
-	ctx             context.Context
-	cancel          context.CancelFunc
-	validate        validate
-	config          DeviceConfig
-	edgeServiceCall OnEdgeServiceCall //service call func
+	ctx      context.Context
+	cancel   context.CancelFunc
+	validate validate
+	config   DeviceConfig
+	//edgeServiceCall OnEdgeServiceCall //service call func
 	endServiceCall  OnEndServiceCall  //service call func
 	userServiceCall OnUserServiceCall //user service call func
 	setServiceCall  OnSetServiceCall  //set service call func
@@ -85,7 +85,7 @@ func (e *edgeClient) init() error {
 	if err != nil {
 		return err
 	}
-	err = getSessionIns().subscribe(msg.buildUserServiceTopic(e.config.DeviceId(), e.config.ThingId()), e.endCall)
+	err = getSessionIns().subscribe(msg.buildUserServiceTopic(e.config.DeviceId(), e.config.ThingId()), e.userCall)
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func (e *edgeClient) endCall(topic string, payload []byte) {
 		Code: RPC_SUCCESS,
 		Data: make(Metadata),
 	}
-	if e.edgeServiceCall != nil {
+	if e.endServiceCall != nil {
 		if data, err = e.endServiceCall(deviceId, methodName, req.Params); err != nil {
 			resp.Code = RPC_FAIL
 		} else {
@@ -240,7 +240,7 @@ func (e *edgeClient) userCall(topic string, payload []byte) {
 		}
 	}()
 	if e.logger != nil {
-		e.logger.Warn(topic, payload)
+		e.logger.Info(topic, payload)
 	}
 	if e.userServiceCall != nil {
 		if data, err = e.userServiceCall(payload); err != nil {
