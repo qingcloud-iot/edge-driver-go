@@ -106,6 +106,10 @@ type serviceGetRequest struct {
 	Version string   `json:"version"`
 	Params  []string `json:"params"`
 }
+type Reply struct {
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
+}
 type serviceReply struct {
 	Code int         `json:"code"`
 	Id   string      `json:"id"`

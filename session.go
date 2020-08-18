@@ -16,7 +16,6 @@
 package edge_driver_go
 
 import (
-	"encoding/json"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"io/ioutil"
 	"net"
@@ -105,11 +104,12 @@ func (s *session) init() {
 		},
 	}
 }
-func (s *session) register(id string, client Client) {
-	if _, ok := s.subDevices[id]; !ok {
-		s.subDevices[id] = client
-	}
-}
+
+//func (s *session) register(id string, client Client) {
+//	if _, ok := s.subDevices[id]; !ok {
+//		s.subDevices[id] = client
+//	}
+//}
 func (s *session) connect(client mqtt.Client) {
 	for {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
@@ -171,14 +171,13 @@ func (s *session) publish(topic string, payload []byte) error {
 	}
 	return nil
 }
-func (s *session) getConfig() (Metadata, error) {
+func (s *session) getConfig() ([]byte, error) {
 	var (
 		err      error
 		resp     *http.Response
 		content  []byte
-		response Metadata
+		response []byte
 	)
-	response = Metadata{}
 	resp, err = s.metadataClient.Get(metadataBroker)
 	if err != nil {
 		return response, err
@@ -189,17 +188,17 @@ func (s *session) getConfig() (Metadata, error) {
 		return response, err
 	}
 	//todo need fix
-	err = json.Unmarshal(content, &response)
-	return response, err
+	//err = json.Unmarshal(content, &response)
+	return content, err
 }
-func (s *session) getDriver() (Metadata, error) {
+func (s *session) getDriver() ([]byte, error) {
 	var (
 		err      error
 		resp     *http.Response
 		content  []byte
-		response Metadata
+		response []byte
 	)
-	response = Metadata{}
+	//response = Metadata{}
 	resp, err = s.metadataClient.Get(metadataBroker)
 	if err != nil {
 		return response, err
@@ -210,8 +209,8 @@ func (s *session) getDriver() (Metadata, error) {
 		return response, err
 	}
 	//todo need fix
-	err = json.Unmarshal(content, &response)
-	return response, err
+	//err = json.Unmarshal(content, &response)
+	return content, err
 }
 func (s *session) disconnect() {
 	if s.client != nil {

@@ -16,12 +16,12 @@
 package edge_driver_go
 
 //get device config
-func GetConfig() (Metadata, error) {
+func GetConfig() ([]byte, error) {
 	return getSessionIns().getConfig()
 }
 
 //get driver config
-func GetDriverInfo() (Metadata, error) {
+func GetDriverInfo() ([]byte, error) {
 	return getSessionIns().getDriver()
 }
 

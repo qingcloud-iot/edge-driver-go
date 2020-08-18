@@ -173,6 +173,7 @@ func (e *edgeClient) endCall(topic string, payload []byte) {
 		methodName string
 		deviceId   string
 		data       Metadata
+		reply      *Reply
 		resp       *serviceReply
 		buf        []byte
 		err        error
@@ -204,26 +205,31 @@ func (e *edgeClient) endCall(topic string, payload []byte) {
 		Data: make(Metadata),
 	}
 	if e.endServiceCall != nil {
-		if data, err = e.endServiceCall(deviceId, methodName, req.Params); err != nil {
+		if reply, err = e.endServiceCall(deviceId, methodName, req.Params); err != nil {
 			resp.Code = RPC_FAIL
 		} else {
-			resp.Data = data
+			resp.Code = reply.Code
+			resp.Data = reply.Data
 		}
 		if err = e.validate.validateServiceOutput(context.Background(), deviceId, methodName, data); err != nil {
 			resp.Code = RPC_FAIL
 		}
-	}
-	buf, err = json.Marshal(resp)
-	if err != nil {
-		return
-	}
-	if err = getSessionIns().publish(topic+"_reply", buf); err != nil {
-		if e.logger != nil {
-			e.logger.Error(fmt.Sprintf("requestServiceReply err:%s", err.Error()))
+		buf, err = json.Marshal(resp)
+		if err != nil {
+			return
+		}
+		if err = getSessionIns().publish(topic+"_reply", buf); err != nil {
+			if e.logger != nil {
+				e.logger.Error(fmt.Sprintf("requestServiceReply err:%s", err.Error()))
+			}
+		} else {
+			if e.logger != nil {
+				e.logger.Error(fmt.Sprintf("requestServiceReply  topic:%s,data:%s", topic+"_reply", string(buf)))
+			}
 		}
 	} else {
 		if e.logger != nil {
-			e.logger.Error(fmt.Sprintf("requestServiceReply  topic:%s,data:%s", topic+"_reply", string(buf)))
+			e.logger.Warn("callback not set")
 		}
 	}
 }
@@ -255,6 +261,10 @@ func (e *edgeClient) userCall(topic string, payload []byte) {
 					e.logger.Error(fmt.Sprintf("userCall  topic:%s,data:%s", topic+"_reply", string(data)))
 				}
 			}
+		}
+	} else {
+		if e.logger != nil {
+			e.logger.Warn("user callback not set")
 		}
 	}
 }
