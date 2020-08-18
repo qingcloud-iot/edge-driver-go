@@ -27,13 +27,15 @@ const (
 	edgeServiceLen = 8
 )
 const (
-	deviceSetProperty      = "/sys/%s/%s/thing/property/base/set"
-	deviceGetProperty      = "/sys/%s/%s/thing/property/base/get"
-	deviceServiceProperty  = "/sys/%s/%s/thing/service/%s/call"
-	deviceStatusReport     = "/as/mqtt/status/%s/%s"
-	devicePropertiesReport = "/sys/%s/%s/thing/property/platform/post"
-	deviceEventsReport     = "/sys/%s/%s/thing/event/%s/post"
-	configChange           = "/iot/internal/notify/+"
+	deviceSetProperty          = "/sys/%s/%s/thing/property/base/set"
+	deviceGetProperty          = "/sys/%s/%s/thing/property/base/get"
+	deviceService              = "/sys/%s/%s/thing/service/%s/call"
+	deviceStatusReport         = "/as/mqtt/status/%s/%s"
+	devicePropertiesReport     = "/sys/%s/%s/thing/property/platform/post"
+	userDevicePropertiesReport = "/sys/%s/%s/user/msg"
+	userDeviceService          = "/sys/%s/%s/user/down/+/call"
+	deviceEventsReport         = "/sys/%s/%s/thing/event/%s/post"
+	configChange               = "/iot/internal/notify/+"
 )
 
 type message struct {
@@ -42,6 +44,11 @@ type message struct {
 //build device status topic
 func (m message) buildStatusTopic(deviceId, thingId string) string {
 	return fmt.Sprintf(deviceStatusReport, thingId, deviceId)
+}
+
+//build device status topic
+func (m message) buildUserTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(userDevicePropertiesReport, thingId, deviceId)
 }
 
 //build device set topic
@@ -55,10 +62,15 @@ func (m message) buildGetTopic(deviceId, thingId string) string {
 }
 
 //build device get topic
+func (m message) buildUserServiceTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(userDeviceService, thingId, deviceId)
+}
+
+//build device get topic
 func (m message) buildServiceTopic(deviceId, thingId string, services []string) []string {
 	result := make([]string, len(services))
 	for k, v := range services {
-		result[k] = fmt.Sprintf(deviceServiceProperty, thingId, deviceId, v)
+		result[k] = fmt.Sprintf(deviceService, thingId, deviceId, v)
 	}
 	return result
 }
@@ -77,6 +89,11 @@ func (m message) buildHeartbeatMsg(deviceId, thingId, status string) []byte {
 
 //build device property topic
 func (m message) buildPropertyTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
+}
+
+//build device property topic
+func (m message) buildUserPropertyTopic(deviceId, thingId string) string {
 	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
 }
 func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byte {

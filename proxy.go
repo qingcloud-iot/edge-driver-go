@@ -21,7 +21,7 @@ import (
 	"fmt"
 )
 
-type edgeClient struct {
+type proxyClient struct {
 	ctx             context.Context
 	cancel          context.CancelFunc
 	validate        validate
@@ -35,7 +35,7 @@ type edgeClient struct {
 }
 
 // edge sdk init
-func NewEdgeClient(token string, opt ...ServerOption) Client {
+func NewEndClient(token string, opt ...ServerOption) Client {
 	var (
 		config DeviceConfig
 		err    error
@@ -67,7 +67,7 @@ func NewEdgeClient(token string, opt ...ServerOption) Client {
 	}
 	return edge
 }
-func (e *edgeClient) init() error {
+func (e *proxyClient) init() error {
 	var (
 		err error
 		msg message
@@ -85,13 +85,9 @@ func (e *edgeClient) init() error {
 	if err != nil {
 		return err
 	}
-	err = getSessionIns().subscribe(msg.buildUserServiceTopic(e.config.DeviceId(), e.config.ThingId()), e.endCall)
-	if err != nil {
-		return err
-	}
 	return nil
 }
-func (e *edgeClient) setCall(topic string, payload []byte) {
+func (e *proxyClient) setCall(topic string, payload []byte) {
 	var (
 		msg  message
 		req  *serviceRequest
@@ -127,7 +123,7 @@ func (e *edgeClient) setCall(topic string, payload []byte) {
 		}
 	}
 }
-func (e *edgeClient) getCall(topic string, payload []byte) {
+func (e *proxyClient) getCall(topic string, payload []byte) {
 	var (
 		msg  message
 		req  *serviceGetRequest
@@ -166,7 +162,7 @@ func (e *edgeClient) getCall(topic string, payload []byte) {
 		}
 	}
 }
-func (e *edgeClient) endCall(topic string, payload []byte) {
+func (e *proxyClient) endCall(topic string, payload []byte) {
 	var (
 		msg        message
 		req        *serviceRequest
@@ -227,7 +223,7 @@ func (e *edgeClient) endCall(topic string, payload []byte) {
 		}
 	}
 }
-func (e *edgeClient) userCall(topic string, payload []byte) {
+func (e *proxyClient) userCall(topic string, payload []byte) {
 	var (
 		data []byte
 		err  error
@@ -258,15 +254,10 @@ func (e *edgeClient) userCall(topic string, payload []byte) {
 		}
 	}
 }
-func (e *edgeClient) ReportUserMessage(ctx context.Context, payload []byte) error {
-	var (
-		topic string
-		msg   message
-	)
-	topic = msg.buildUserTopic(e.config.DeviceId(), e.config.ThingId())
-	return getSessionIns().publish(topic, payload)
+func (e *proxyClient) ReportUserMessage(context.Context, []byte) error {
+	return nil
 }
-func (e *edgeClient) Online(context.Context) error {
+func (e *proxyClient) Online(context.Context) error {
 	var (
 		topic string
 		msg   message
@@ -281,7 +272,7 @@ func (e *edgeClient) Online(context.Context) error {
 	}
 	return e.init()
 }
-func (e *edgeClient) Offline(context.Context) error {
+func (e *proxyClient) Offline(context.Context) error {
 	var (
 		topic string
 		msg   message
@@ -292,7 +283,7 @@ func (e *edgeClient) Offline(context.Context) error {
 	return getSessionIns().publish(topic, data)
 }
 
-func (e *edgeClient) ReportProperties(ctx context.Context, params Metadata) error {
+func (e *proxyClient) ReportProperties(ctx context.Context, params Metadata) error {
 	var (
 		topic string
 		msg   message
@@ -307,7 +298,7 @@ func (e *edgeClient) ReportProperties(ctx context.Context, params Metadata) erro
 	data = msg.buildPropertyMsg(e.config.DeviceId(), e.config.ThingId(), params)
 	return getSessionIns().publish(topic, data)
 }
-func (e *edgeClient) ReportEvent(ctx context.Context, eventId string, params Metadata) error {
+func (e *proxyClient) ReportEvent(ctx context.Context, eventId string, params Metadata) error {
 	var (
 		topic string
 		msg   message

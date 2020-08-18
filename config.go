@@ -32,6 +32,7 @@ func newConfig(token string) (DeviceConfig, error) {
 	if deviceId, thingId, err = parseToken(token); err != nil {
 		return nil, err
 	}
+	//need get services
 	conf = &config{
 		deviceId: deviceId,
 		thingId:  thingId,

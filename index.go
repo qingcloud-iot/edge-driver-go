@@ -35,13 +35,13 @@ type ConfigChangeFunc func(config Metadata)
 
 //边端设备sdk接口
 type Client interface {
-	Init() error                                         //初始化服务
-	Online(context.Context) error                        //设备上线通知
-	Offline(context.Context) error                       //设备下线通知
-	ReportProperties(context.Context, Metadata) error    //上报属性
-	ReportEvent(context.Context, string, Metadata) error //上报事件
+	//Init() error                                         //init
+	Online(context.Context) error                        //report device online to cloud
+	Offline(context.Context) error                       //report device offline to cloud
+	ReportProperties(context.Context, Metadata) error    //report device property to cloud
+	ReportEvent(context.Context, string, Metadata) error //report device event to cloud
+	ReportUserMessage(context.Context, []byte) error     //report user device message to cloud
 }
-
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)
 
