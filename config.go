@@ -15,42 +15,42 @@
  */
 package edge_driver_go
 
-type config struct {
+type deviceConfig struct {
 	metadata map[string]interface{}
 	services []string
 	deviceId string
 	thingId  string
 }
 
-func newConfig(token string) (DeviceConfig, error) {
+func newDeviceConfig(token string) (Config, error) {
 	var (
 		deviceId string
 		thingId  string
-		conf     DeviceConfig
+		conf     Config
 		err      error
 	)
 	if deviceId, thingId, err = parseToken(token); err != nil {
 		return nil, err
 	}
 	//need get services
-	conf = &config{
+	conf = &deviceConfig{
 		deviceId: deviceId,
 		thingId:  thingId,
 	}
 	return conf, nil
 }
-func (c *config) update() error {
+func (c *deviceConfig) update() error {
 	return nil
 }
-func (c *config) DeviceId() string {
+func (c *deviceConfig) DeviceId() string {
 	return c.deviceId
 }
-func (c *config) ThingId() string {
+func (c *deviceConfig) ThingId() string {
 	return c.thingId
 }
-func (c *config) Services() []string {
+func (c *deviceConfig) Services() []string {
 	return c.services
 }
-func (c *config) Metadata() map[string]interface{} {
+func (c *deviceConfig) Metadata() map[string]interface{} {
 	return c.metadata
 }

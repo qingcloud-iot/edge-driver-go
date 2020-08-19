@@ -46,7 +46,7 @@ type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)
 
 //describe device info
-type DeviceConfig interface {
+type Config interface {
 	DeviceId() string //device id
 	ThingId() string  //thing id
 	Services() []string

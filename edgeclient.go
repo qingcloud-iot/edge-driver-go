@@ -37,14 +37,14 @@ type edgeClient struct {
 // edge sdk init
 func NewEdgeClient(token string, opt ...ServerOption) Client {
 	var (
-		config DeviceConfig
+		config Config
 		err    error
 		opts   options
 	)
 	if token == "" {
 		panic("token is illegal")
 	}
-	config, err = newConfig(token)
+	config, err = newDeviceConfig(token)
 	if err != nil {
 		panic(err)
 	}
