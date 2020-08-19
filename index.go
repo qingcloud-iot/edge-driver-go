@@ -31,7 +31,7 @@ type OnGetServiceCall func(args []string) (Metadata, error)
 type OnUserServiceCall func(data []byte) ([]byte, error)
 
 //config change call
-type ConfigChangeFunc func(config []byte)
+type ConfigChangeFunc func(t string, config []byte)
 
 //边端设备sdk接口
 type Client interface {

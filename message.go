@@ -25,6 +25,7 @@ import (
 
 const (
 	edgeServiceLen = 8
+	configLen      = 5
 )
 const (
 	deviceSetProperty          = "/sys/%s/%s/thing/property/base/set"
@@ -152,6 +153,13 @@ func (m message) parseServiceMethod(topic string) (string, string, error) {
 		return "", "", topicError
 	}
 	return kv[2], kv[6], nil
+}
+func (m message) parseConfigType(topic string) (string, error) {
+	kv := strings.Split(topic, "/")
+	if len(kv) != configLen {
+		return "", topicError
+	}
+	return kv[4], nil
 }
 func (m message) parseResponseMsg(payload []byte) (*serviceRequest, error) {
 	message := &serviceRequest{}

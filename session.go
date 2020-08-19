@@ -83,6 +83,17 @@ func (s *session) init() {
 		SetOnConnectHandler(func(client mqtt.Client) {
 			atomic.StoreUint32(&s.status, hubConnected)
 			s.client.Subscribe(configChange, byte(0), func(client mqtt.Client, i mqtt.Message) {
+				var msg message
+				t, err := msg.parseConfigType(i.Topic())
+				if err != nil {
+					if s.logger != nil {
+						s.logger.Warn("connect lost")
+					}
+					return
+				}
+				if s.configChange != nil {
+					s.configChange(t, i.Payload())
+				}
 			})
 			if s.logger != nil {
 				s.logger.Info("connect success")

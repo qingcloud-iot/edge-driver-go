@@ -20,7 +20,7 @@ func main() {
 		return
 	})
 	opts = append(opts, opt)
-	opt = edge_driver_go.SetGetServiceCall(func(args []string) (metadata edge_driver_go.Metadata, e error) {
+	opt = edge_driver_go.SetSetServiceCall(func(args []string) (metadata edge_driver_go.Metadata, e error) {
 		fmt.Println(args)
 		return
 	})
