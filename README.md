@@ -23,6 +23,15 @@ func SetConnectLost(call ConnectLost)
 func SetConfigChange(call ConfigChangeFunc) 
 
 ```
+### 边设备模块接口
+```go
+//注册边端服务调用回调
+func RegisterEdgeService(string,OnEdgeServiceCall)
+//上报边端属性
+func ReportEdgeProperties(context.Context,Metadata) error 
+//上报边端事件
+func ReportEdgeEvent(context.Context,string,Metadata) error
+```
 ### 子设备模块管理接口
 ```go
 //设备下行数据相关接口
@@ -50,7 +59,7 @@ func SetUserServiceCall(call OnUserServiceCall) ServerOption {
 		i.userServiceCall = call
 	})
 }
-//边端设备sdk接口
+//子设备sdk接口
 type Client interface {
 	Init() error                                         //初始化服务
 	Online(context.Context) error                        //设备上线通知

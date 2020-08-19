@@ -20,8 +20,8 @@ import "context"
 type Metadata map[string]interface{}
 
 //edge service call
-//type OnEdgeServiceCall func(name string, args Metadata) (Metadata, error)
-type OnEndServiceCall func(deviceId, name string, args Metadata) (*Reply, error)
+type OnEdgeServiceCall func(args Metadata) (*Reply, error)
+type OnEndServiceCall func(name string, args Metadata) (*Reply, error)
 
 //edge set and get
 type OnSetServiceCall func(args Metadata) error

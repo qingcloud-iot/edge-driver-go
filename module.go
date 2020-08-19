@@ -15,6 +15,8 @@
  */
 package edge_driver_go
 
+import "context"
+
 //get device config
 func GetConfig() ([]byte, error) {
 	return getSessionIns().getConfig()
@@ -23,6 +25,19 @@ func GetConfig() ([]byte, error) {
 //get driver config
 func GetDriverInfo() ([]byte, error) {
 	return getSessionIns().getDriver()
+}
+
+//register edge service
+func RegisterEdgeService(string, OnEdgeServiceCall) {}
+
+//pub edge properties
+func ReportEdgeProperties(context.Context, Metadata) error {
+	return nil
+}
+
+//pub edge event
+func ReportEdgeEvent(context.Context, string, Metadata) error {
+	return nil
 }
 
 //set connect lost handle
