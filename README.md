@@ -18,13 +18,9 @@ func GetConfig() (Metadata, error)
 //获取驱动相关信息
 func GetDriverInfo() (Metadata, error)
 //设置连接丢失回调
-func SetConnectLost(call ConnectLost) {
-	getSessionIns().setConnectLost(call)
-}
+func SetConnectLost(call ConnectLost) 
 //设置配置变更回调
-func SetConfigChange(call ConfigChangeFunc) {
-	getSessionIns().setConfigChange(call)
-}
+func SetConfigChange(call ConfigChangeFunc) 
 
 ```
 ### 子设备模块管理接口
@@ -61,5 +57,6 @@ type Client interface {
 	Offline(context.Context) error                       //设备下线通知
 	ReportProperties(context.Context, Metadata) error    //上报属性
 	ReportEvent(context.Context, string, Metadata) error //上报事件
+    ReportUserMessage(context.Context, []byte) error     //上报自定义数据
 }
 ```
