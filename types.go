@@ -23,6 +23,7 @@ const (
 	messageVersion = "v0.0.1"
 	hubBroker      = "tcp://127.0.0.1:1883"
 	metadataBroker = "127.0.0.1:1889"
+	fileToken      = "/etc/token"
 )
 const (
 	MaxIdleConns        int = 100

@@ -15,7 +15,11 @@
  */
 package edge_driver_go
 
-import "context"
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+)
 
 //get device config
 func GetConfig() ([]byte, error) {
@@ -28,16 +32,85 @@ func GetDriverInfo() ([]byte, error) {
 }
 
 //register edge service
-func RegisterEdgeService(string, OnEdgeServiceCall) {}
-
-//pub edge properties
-func ReportEdgeProperties(context.Context, Metadata) error {
+func RegisterEdgeService(serviceId string, call OnEdgeServiceCall) error {
+	var (
+		msg    message
+		err    error
+		req    *serviceRequest
+		reply  *Reply
+		resp   *serviceReply
+		buf    []byte
+		logger Logger
+		//methodName string
+	)
+	logger = newLogger()
+	err = getSessionIns().subscribes(msg.buildServiceTopic(deviceId, thingId, []string{serviceId}), func(topic string, payload []byte) {
+		defer func() {
+			if err != nil {
+				logger.Error(topic, err.Error())
+			}
+		}()
+		deviceId, _, err = msg.parseServiceMethod(topic)
+		if err != nil {
+			return
+		}
+		req, err = msg.parseResponseMsg(payload)
+		if err != nil {
+			return
+		}
+		resp = &serviceReply{
+			Id:   req.Id,
+			Code: RPC_SUCCESS,
+			Data: make(Metadata),
+		}
+		if call != nil {
+			if reply, err = call(req.Params); err != nil {
+				resp.Code = RPC_FAIL
+			} else {
+				resp.Code = reply.Code
+				resp.Data = reply.Data
+			}
+			buf, err = json.Marshal(resp)
+			if err != nil {
+				return
+			}
+			if err = getSessionIns().publish(topic+"_reply", buf); err != nil {
+				logger.Error(fmt.Sprintf("edge requestServiceReply err:%s", err.Error()))
+			} else {
+				logger.Error(fmt.Sprintf("edge requestServiceReply  topic:%s,data:%s", topic+"_reply", string(buf)))
+			}
+		} else {
+			logger.Warn("edge callback not set")
+		}
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
+//pub edge properties
+func ReportEdgeProperties(ctx context.Context, params Metadata) error {
+	var (
+		topic string
+		msg   message
+		data  []byte
+	)
+	topic = msg.buildPropertyTopic(deviceId, thingId)
+	data = msg.buildPropertyMsg(deviceId, thingId, params)
+	return getSessionIns().publish(topic, data)
+}
+
 //pub edge event
-func ReportEdgeEvent(context.Context, string, Metadata) error {
-	return nil
+func ReportEdgeEvent(ctx context.Context, eventId string, params Metadata) error {
+	var (
+		topic string
+		msg   message
+		data  []byte
+	)
+	topic = msg.buildEventTopic(deviceId, thingId, eventId)
+	data = msg.buildEventMsg(deviceId, thingId, eventId, params)
+	return getSessionIns().publish(topic, data)
 }
 
 //set connect lost handle

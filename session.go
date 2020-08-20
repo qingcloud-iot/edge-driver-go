@@ -29,8 +29,12 @@ import (
 var driverId = "edge.driver." + os.Getenv("DRIVER_ID")
 var driverName = "edge.driver." + os.Getenv("DRIVER_NAME")
 
-var _ins *session
-var once sync.Once
+var (
+	_ins     *session
+	once     sync.Once
+	deviceId string
+	thingId  string
+)
 
 func getSessionIns() *session {
 	once.Do(func() {
@@ -45,6 +49,13 @@ func getSessionIns() *session {
 }
 func init() {
 	_ = getSessionIns()
+	if buf, err := ioutil.ReadFile(fileToken); err != nil {
+		panic(err)
+	} else {
+		if deviceId, thingId, err = parseToken(string(buf)); err != nil {
+			panic(err)
+		}
+	}
 }
 
 //module api

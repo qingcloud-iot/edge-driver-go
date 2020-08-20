@@ -25,7 +25,7 @@ type edgeClient struct {
 	ctx      context.Context
 	cancel   context.CancelFunc
 	validate validate
-	config   DeviceConfig
+	config   Config
 	//edgeServiceCall OnEdgeServiceCall //service call func
 	endServiceCall  OnEndServiceCall  //service call func
 	userServiceCall OnUserServiceCall //user service call func
@@ -205,7 +205,7 @@ func (e *edgeClient) endCall(topic string, payload []byte) {
 		Data: make(Metadata),
 	}
 	if e.endServiceCall != nil {
-		if reply, err = e.endServiceCall(deviceId, methodName, req.Params); err != nil {
+		if reply, err = e.endServiceCall(methodName, req.Params); err != nil {
 			resp.Code = RPC_FAIL
 		} else {
 			resp.Code = reply.Code
