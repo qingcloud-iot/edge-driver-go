@@ -53,6 +53,7 @@ const (
 )
 
 var (
+	rpcTimeout      = errors.New("rpc timeout")
 	notConnected    = errors.New("hub not connected")
 	pubMessageError = errors.New("pub message fail")
 	topicError      = errors.New("parse topic error")

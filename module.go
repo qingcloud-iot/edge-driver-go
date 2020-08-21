@@ -21,17 +21,36 @@ import (
 	"fmt"
 )
 
-//get device config
+/*
+ * 边端获取本配置信息(包括子设备属性　token等)
+ * 阻塞接口, 成功返回nil,  失败返回错误信息.
+ *
+ */
 func GetConfig() ([]byte, error) {
 	return getSessionIns().getConfig()
 }
 
-//get driver config
+/*
+ * 边端获取本驱动信息
+ * 阻塞接口, 成功返回nil,  失败返回错误信息.
+ *
+ */
 func GetDriverInfo() ([]byte, error) {
 	return getSessionIns().getDriver()
 }
 
-//register edge service
+/*
+ * 边端注册服务, 设备注册的服务在设备能力描述在设备物模型规定.
+ *
+ * 上报属性, 可以上报一个, 也可以多个一起上报.
+ *
+ * ctx:          接口超时控制上下文
+ * serviceId:    @serviceId, 服务标识符.
+ * call:    	 @call, 服务回调接口.
+ *
+ * 阻塞接口, 成功返回nil,  失败返回错误信息.
+ *
+ */
 func RegisterEdgeService(serviceId string, call OnEdgeServiceCall) error {
 	var (
 		msg    message
@@ -89,19 +108,48 @@ func RegisterEdgeService(serviceId string, call OnEdgeServiceCall) error {
 	return nil
 }
 
-//pub edge properties
+/*
+ * 边端上报属性, 设备具有的属性在设备能力描述在设备物模型规定.
+ *
+ * 上报属性, 可以上报一个, 也可以多个一起上报.
+ *
+ * ctx:          接口超时控制上下文
+ * params:       @Metadata, 属性数组.
+ *
+ * 阻塞接口, 成功返回nil,  失败返回错误信息.
+ *
+ */
 func ReportEdgeProperties(ctx context.Context, params Metadata) error {
-	var (
-		topic string
-		msg   message
-		data  []byte
-	)
-	topic = msg.buildPropertyTopic(deviceId, thingId)
-	data = msg.buildPropertyMsg(deviceId, thingId, params)
-	return getSessionIns().publish(topic, data)
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+		)
+		topic = msg.buildPropertyTopic(deviceId, thingId)
+		data = msg.buildPropertyMsg(deviceId, thingId, params)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return rpcTimeout
+	}
 }
 
-//pub edge event
+/*
+ * 边端上报事件, 设备具有的事件在设备能力描述在设备物模型规定.
+ *
+ * 上报事件, 单个事件上报.
+ *
+ * ctx:          接口超时控制上下文
+ * eventId:      @eventId, 事件标识符.
+ * params:       @Metadata, 属性数组.
+ *
+ * 阻塞接口, 成功返回nil,  失败返回错误信息.
+ *
+ */
 func ReportEdgeEvent(ctx context.Context, eventId string, params Metadata) error {
 	var (
 		topic string

@@ -46,3 +46,11 @@ func parseToken(tokenString string) (string, string, error) {
 	}
 	return id, thingId, nil
 }
+
+func wait(f func() error) <-chan error {
+	done := make(chan error)
+	go func() {
+		done <- f()
+	}()
+	return done
+}

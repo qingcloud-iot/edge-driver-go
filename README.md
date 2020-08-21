@@ -61,7 +61,6 @@ func SetUserServiceCall(call OnUserServiceCall) ServerOption {
 }
 //子设备sdk接口
 type Client interface {
-	Init() error                                         //初始化服务
 	Online(context.Context) error                        //设备上线通知
 	Offline(context.Context) error                       //设备下线通知
 	ReportProperties(context.Context, Metadata) error    //上报属性
