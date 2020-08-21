@@ -10,6 +10,7 @@ package edge_driver_go
 
 import (
 	"context"
+	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -115,11 +116,10 @@ func TestRegisterEdgeService(t *testing.T) {
 	err := RegisterEdgeService("xxxx", func(args Metadata) (reply *Reply, e error) {
 		return
 	})
-	if err != nil {
-		t.Error(err.Error())
-	}
-	for {
-		ReportEdgeProperties(context.Background(), Metadata{"int32": rand.Int()})
-		time.Sleep(3 * time.Second)
-	}
+	assert.Nil(t, err)
+	err = ReportEdgeProperties(context.Background(), Metadata{"int32": rand.Int()})
+	assert.Nil(t, err)
+	err = ReportEdgeEvent(context.Background(), "event", Metadata{"int32": rand.Int()})
+	assert.Nil(t, err)
+	time.Sleep(3 * time.Second)
 }
