@@ -117,3 +117,15 @@ type serviceReply struct {
 	Id   string      `json:"id"`
 	Data interface{} `json:"data"`
 }
+type devInfo struct {
+	id       string `json:"id"`
+	protocol string `json:"protocol"`
+	thingId  string `json:"thing_id"`
+	token    string `json:"token"`
+	status   string `json:"status"`
+}
+type reply struct {
+	Code    int         `json:"code"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
+}

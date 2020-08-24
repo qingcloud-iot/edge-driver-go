@@ -20,6 +20,7 @@ type deviceConfig struct {
 	services []string
 	deviceId string
 	thingId  string
+	token    string
 }
 
 func newDeviceConfig(token string) (Config, error) {
@@ -38,6 +39,9 @@ func newDeviceConfig(token string) (Config, error) {
 		thingId:  thingId,
 	}
 	return conf, nil
+}
+func (c *deviceConfig) Token() string {
+	return c.token
 }
 func (c *deviceConfig) update() error {
 	return nil

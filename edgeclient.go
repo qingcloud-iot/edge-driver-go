@@ -35,6 +35,7 @@ type edgeClient struct {
 }
 
 // edge sdk init
+//
 func NewEdgeClient(token string, opt ...ServerOption) Client {
 	var (
 		config Config
@@ -228,9 +229,9 @@ func (e *edgeClient) endCall(topic string, payload []byte) {
 			}
 		}
 	} else {
-		if e.logger != nil {
-			e.logger.Warn("callback not set")
-		}
+		//if e.logger != nil {
+		//	e.logger.Warn("callback not set")
+		//}
 	}
 }
 func (e *edgeClient) userCall(topic string, payload []byte) {
@@ -263,72 +264,112 @@ func (e *edgeClient) userCall(topic string, payload []byte) {
 			}
 		}
 	} else {
-		if e.logger != nil {
-			e.logger.Warn("user callback not set")
-		}
+		//if e.logger != nil {
+		//	e.logger.Warn("user callback not set")
+		//}
 	}
 }
 func (e *edgeClient) ReportUserMessage(ctx context.Context, payload []byte) error {
-	var (
-		topic string
-		msg   message
-	)
-	topic = msg.buildUserTopic(e.config.DeviceId(), e.config.ThingId())
-	return getSessionIns().publish(topic, payload)
-}
-func (e *edgeClient) Online(context.Context) error {
-	var (
-		topic string
-		msg   message
-		data  []byte
-		err   error
-	)
-	topic = msg.buildStatusTopic(e.config.DeviceId(), e.config.ThingId())
-	data = msg.buildHeartbeatMsg(e.config.DeviceId(), e.config.ThingId(), online)
-	err = getSessionIns().publish(topic, data)
-	if err != nil {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+		)
+		topic = msg.buildUserTopic(e.config.DeviceId(), e.config.ThingId())
+		return getSessionIns().publish(topic, payload)
+	})
+	select {
+	case err := <-done:
 		return err
+	case <-ctx.Done():
+		return rpcTimeout
 	}
-	return e.init()
 }
-func (e *edgeClient) Offline(context.Context) error {
-	var (
-		topic string
-		msg   message
-		data  []byte
-	)
-	topic = msg.buildStatusTopic(e.config.DeviceId(), e.config.ThingId())
-	data = msg.buildHeartbeatMsg(e.config.DeviceId(), e.config.ThingId(), offline)
-	return getSessionIns().publish(topic, data)
+func (e *edgeClient) Online(ctx context.Context) error {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+			err   error
+		)
+		topic = msg.buildStatusTopic(e.config.DeviceId(), e.config.ThingId())
+		data = msg.buildHeartbeatMsg(e.config.DeviceId(), e.config.ThingId(), online)
+		err = getSessionIns().publish(topic, data)
+		if err != nil {
+			return err
+		}
+		return e.init()
+	})
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return rpcTimeout
+	}
+}
+func (e *edgeClient) Offline(ctx context.Context) error {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+		)
+		topic = msg.buildStatusTopic(e.config.DeviceId(), e.config.ThingId())
+		data = msg.buildHeartbeatMsg(e.config.DeviceId(), e.config.ThingId(), offline)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return rpcTimeout
+	}
 }
 
 func (e *edgeClient) ReportProperties(ctx context.Context, params Metadata) error {
-	var (
-		topic string
-		msg   message
-		data  []byte
-		//thingId string
-		err error
-	)
-	if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+			//thingId string
+			err error
+		)
+		if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+			return err
+		}
+		topic = msg.buildPropertyTopic(e.config.DeviceId(), e.config.ThingId())
+		data = msg.buildPropertyMsg(e.config.DeviceId(), e.config.ThingId(), params)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
 		return err
+	case <-ctx.Done():
+		return rpcTimeout
 	}
-	topic = msg.buildPropertyTopic(e.config.DeviceId(), e.config.ThingId())
-	data = msg.buildPropertyMsg(e.config.DeviceId(), e.config.ThingId(), params)
-	return getSessionIns().publish(topic, data)
 }
 func (e *edgeClient) ReportEvent(ctx context.Context, eventId string, params Metadata) error {
-	var (
-		topic string
-		msg   message
-		data  []byte
-		//thingId string
-		err error
-	)
-	if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+			//thingId string
+			err error
+		)
+		if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+			return err
+		}
+		topic = msg.buildEventTopic(e.config.DeviceId(), e.config.ThingId(), eventId)
+		data = msg.buildEventMsg(e.config.DeviceId(), e.config.ThingId(), eventId, params)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
 		return err
+	case <-ctx.Done():
+		return rpcTimeout
 	}
-	topic = msg.buildEventTopic(e.config.DeviceId(), e.config.ThingId(), eventId)
-	data = msg.buildEventMsg(e.config.DeviceId(), e.config.ThingId(), eventId, params)
-	return getSessionIns().publish(topic, data)
 }

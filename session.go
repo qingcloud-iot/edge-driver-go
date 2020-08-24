@@ -16,6 +16,7 @@
 package edge_driver_go
 
 import (
+	"encoding/json"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"io/ioutil"
 	"net"
@@ -26,17 +27,18 @@ import (
 	"time"
 )
 
-var driverId = "edge.driver." + os.Getenv("DRIVER_ID")
-var driverName = "edge.driver." + os.Getenv("DRIVER_NAME")
-
 var (
-	_ins     *session
-	once     sync.Once
-	deviceId string
-	thingId  string
+	_ins       *session
+	once       sync.Once
+	deviceId   string
+	thingId    string
+	driverId   string
+	driverName string
 )
 
 func getSessionIns() *session {
+	driverId = "edge.driver." + os.Getenv("DRIVER_ID")
+	driverName = "edge.driver." + os.Getenv("DRIVER_ID")
 	once.Do(func() {
 		_ins = &session{
 			client: nil,
@@ -93,7 +95,7 @@ func (s *session) init() {
 		}).
 		SetOnConnectHandler(func(client mqtt.Client) {
 			atomic.StoreUint32(&s.status, hubConnected)
-			s.client.Subscribe(configChange, byte(0), func(client mqtt.Client, i mqtt.Message) {
+			client.Subscribe(configChange, byte(0), func(client mqtt.Client, i mqtt.Message) {
 				var msg message
 				t, err := msg.parseConfigType(i.Topic())
 				if err != nil {
@@ -194,6 +196,26 @@ func (s *session) publish(topic string, payload []byte) error {
 	return nil
 }
 func (s *session) getConfig() ([]byte, error) {
+	var (
+		err      error
+		resp     *http.Response
+		content  []byte
+		response []byte
+	)
+	resp, err = s.metadataClient.Get(metadataBroker)
+	if err != nil {
+		return response, err
+	}
+	defer resp.Body.Close()
+	content, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return response, err
+	}
+	//todo need fix
+	err = json.Unmarshal(content, &response)
+	return content, err
+}
+func (s *session) getModel(id string) ([]byte, error) {
 	var (
 		err      error
 		resp     *http.Response

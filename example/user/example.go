@@ -26,10 +26,10 @@ func main() {
 			fmt.Println(err)
 		}
 		time.Sleep(2 * time.Second)
-		err = client.Offline(context.Background())
-		if err != nil {
-			fmt.Println(err)
-		}
-		time.Sleep(2 * time.Second)
+		//err = client.Offline(context.Background())
+		//if err != nil {
+		//	fmt.Println(err)
+		//}
+		//time.Sleep(2 * time.Second)
 	}
 }

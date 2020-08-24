@@ -10,8 +10,8 @@ import (
 
 func main() {
 	var opts []edge_driver_go.ServerOption
-	opt := edge_driver_go.SetEndServiceCall(func(deviceId, name string, args edge_driver_go.Metadata) (reply *edge_driver_go.Reply, e error) {
-		fmt.Println(deviceId, name, args)
+	opt := edge_driver_go.SetEndServiceCall(func(name string, args edge_driver_go.Metadata) (reply *edge_driver_go.Reply, e error) {
+		fmt.Println(name, args)
 		return
 	})
 	opts = append(opts, opt)

@@ -47,8 +47,9 @@ type messageArrived func(topic string, payload []byte)
 
 //describe device info
 type Config interface {
-	DeviceId() string //device id
-	ThingId() string  //thing id
-	Services() []string
+	DeviceId() string                 //device id
+	ThingId() string                  //thing id
+	Token() string                    //token
+	Services() []string               //services
 	Metadata() map[string]interface{} //device metadata
 }
