@@ -22,7 +22,7 @@
  * err:			 @err 成功返回nil,  失败返回错误信息.
  *
  */
-func GetConfig() (Metadata, error)
+func GetConfig() ([]byte, error)
 /*
  * 边端获取本驱动信息
  *
@@ -31,18 +31,7 @@ func GetConfig() (Metadata, error)
  * info:		 @info 本驱动信息.
  * err:			 @err 成功返回nil,  失败返回错误信息.
  */
-func GetDriverInfo() (Metadata, error)
-/*
- * 获取模型相关的详细信息
- *
- * 阻塞接口.
- *
- * config:		 @config 模型相关的详细信息.
- * err:			 @err 成功返回nil,  失败返回错误信息.
- */
-func GetModel(id string) ([]byte, error) {
-	return getSessionIns().getModel()
-}
+func GetDriverInfo() ([]byte, error)
 /*
  * 边端离线回调通知(异常)
  *
@@ -159,3 +148,6 @@ type Client interface {
     ReportUserMessage(context.Context, []byte) error     //上报自定义数据
 }
 ```
+
+
+## example

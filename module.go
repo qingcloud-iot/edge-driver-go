@@ -132,3 +132,15 @@ func SetConnectLost(call ConnectLost) {
 func SetConfigChange(call ConfigChangeFunc) {
 	getSessionIns().setConfigChange(call)
 }
+
+///*
+// * 获取模型相关的详细信息
+// *
+// * 阻塞接口.
+// *
+// * config:		 @config 模型相关的详细信息.
+// * err:			 @err 成功返回nil,  失败返回错误信息.
+// */
+//func GetModel(id string) ([]byte, error) {
+//	return getSessionIns().getModel()
+//}
