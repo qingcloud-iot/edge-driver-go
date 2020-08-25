@@ -58,32 +58,32 @@ func SetConfigChange(call ConfigChangeFunc)
  * call:    	 @call, 服务回调接口.
  * err:			 @err 成功返回nil,  失败返回错误信息.
  */
-func RegisterEdgeService(string,OnEdgeServiceCall)
+func RegisterEdgeService(serviceId string,call OnEdgeServiceCall)
 /*
  * 边端上报属性, 设备具有的属性在设备能力描述在设备物模型规定.
  *
  * 上报属性, 可以上报一个, 也可以多个一起上报.
  *
- * ctx:          接口超时控制上下文
+ * ctx:          @ctx, 接口超时控制上下文
  * params:       @Metadata, 属性数组.
  *
  * 阻塞接口.
  * err:			 @err 成功返回nil,  失败返回错误信息.
  */
-func ReportEdgeProperties(context.Context,Metadata) error 
+func ReportEdgeProperties(ctx context.Context,params Metadata) error 
 /*
  * 边端上报事件, 设备具有的事件在设备能力描述在设备物模型规定.
  *
  * 上报事件, 单个事件上报.
  *
- * ctx:          接口超时控制上下文
+ * ctx:          @ctx, 接口超时控制上下文
  * eventId:      @eventId, 事件标识符.
  * params:       @Metadata, 属性数组.
  *
  * 阻塞接口.
  * err:			 @err 成功返回nil,  失败返回错误信息.
  */
-func ReportEdgeEvent(context.Context,string,Metadata) error
+func ReportEdgeEvent(ctx context.Context,eventId string, params Metadata) error
 ```
 ### 子设备模块管理接口
 ```go
@@ -141,11 +141,58 @@ func SetUserServiceCall(call OnUserServiceCall) ServerOption {
 }
 //子设备sdk接口
 type Client interface {
-	Online(context.Context) error                        //设备上线通知
-	Offline(context.Context) error                       //设备下线通知
-	ReportProperties(context.Context, Metadata) error    //上报属性
-	ReportEvent(context.Context, string, Metadata) error //上报事件
-    ReportUserMessage(context.Context, []byte) error     //上报自定义数据
+    /*
+     * 子设备上线
+     *
+     * ctx:          @ctx, 接口超时控制上下文
+     *
+     * err:			 @err 成功返回nil,  失败返回错误信息.
+     */
+	Online(ctx context.Context) error                        //设备上线通知
+    /*
+     * 子设备下线
+     *
+     * ctx:          @ctx, 接口超时控制上下文
+     *
+     * err:			 @err 成功返回nil,  失败返回错误信息.
+     */
+	Offline(ctx context.Context) error                       //设备下线通知
+    /*
+     * 子设备上报属性, 设备具有的属性的设备能力描述在设备物模型规定.
+     *
+     * 上报属性, 可以上报一个, 也可以多个一起上报.
+     *
+     * ctx:          @ctx, 接口超时控制上下文
+     * params:       @Metadata, 属性数组.
+     *
+     * 阻塞接口.
+     * err:			 @err 成功返回nil,  失败返回错误信息.
+     */
+	ReportProperties(ctx context.Context,params Metadata) error    //上报属性
+    /*
+     * 子设备上报事件, 设备具有的事件的设备能力描述在设备物模型规定.
+     *
+     * 上报事件, 单个事件上报.
+     *
+     * ctx:          @ctx, 接口超时控制上下文
+     * eventId:      @eventId, 事件标识符.
+     * params:       @Metadata, 属性数组.
+     *
+     * 阻塞接口.
+     * err:			 @err 成功返回nil,  失败返回错误信息.
+     */
+	ReportEvent(ctx context.Context,eventId string,params Metadata) error //上报事件
+    /*
+     * 子设备上报自定义数据.
+     *
+     *
+     * ctx:       @ctx, 接口超时控制上下文
+     * data:      @data, 设备自定义数据.
+     *
+     * 阻塞接口.
+     * err:			 @err 成功返回nil,  失败返回错误信息.
+     */
+    ReportUserMessage(ctx context.Context,data []byte) error     //上报自定义数据
 }
 ```
 

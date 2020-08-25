@@ -183,9 +183,6 @@ func (s *session) setConfigChange(configChange ConfigChangeFunc) {
 	s.configChange = configChange
 }
 
-//func (s *session)setMessageCallback(messageArrived messageArrived){
-//	s.messageArrived = messageArrived
-//}
 func (s *session) publish(topic string, payload []byte) error {
 	if atomic.LoadUint32(&s.status) == 0 {
 		return notConnected

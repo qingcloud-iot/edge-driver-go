@@ -25,7 +25,7 @@ type edgeClient struct {
 	ctx      context.Context
 	cancel   context.CancelFunc
 	validate validate
-	config   Config
+	config   config
 	//edgeServiceCall OnEdgeServiceCall //service call func
 	endServiceCall  OnEndServiceCall  //service call func
 	userServiceCall OnUserServiceCall //user service call func
@@ -38,7 +38,7 @@ type edgeClient struct {
 //
 func NewEdgeClient(token string, opt ...ServerOption) Client {
 	var (
-		config Config
+		config config
 		err    error
 		opts   options
 	)

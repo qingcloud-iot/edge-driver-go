@@ -23,11 +23,11 @@ type deviceConfig struct {
 	token    string
 }
 
-func newDeviceConfig(token string) (Config, error) {
+func newDeviceConfig(token string) (config, error) {
 	var (
 		deviceId string
 		thingId  string
-		conf     Config
+		conf     config
 		err      error
 	)
 	if deviceId, thingId, err = parseToken(token); err != nil {

@@ -33,20 +33,19 @@ type OnUserServiceCall func(data []byte) ([]byte, error)
 //config change call
 type ConfigChangeFunc func(t string, config []byte)
 
-//边端设备sdk接口
+//sub device interface
 type Client interface {
-	//Init() error                                       //init
-	Online(context.Context) error                        //report device online to cloud
-	Offline(context.Context) error                       //report device offline to cloud
-	ReportProperties(context.Context, Metadata) error    //report device property to cloud
-	ReportEvent(context.Context, string, Metadata) error //report device event to cloud
-	ReportUserMessage(context.Context, []byte) error     //report user device message to cloud
+	Online(ctx context.Context) error                                       //report device online to cloud
+	Offline(ctx context.Context) error                                      //report device offline to cloud
+	ReportProperties(ctx context.Context, params Metadata) error            //report device property to cloud
+	ReportEvent(ctx context.Context, eventId string, params Metadata) error //report device event to cloud
+	ReportUserMessage(ctx context.Context, data []byte) error               //report user device message to cloud
 }
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)
 
 //describe device info
-type Config interface {
+type config interface {
 	DeviceId() string                 //device id
 	ThingId() string                  //thing id
 	Token() string                    //token

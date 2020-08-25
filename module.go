@@ -25,9 +25,9 @@ func GetConfig() (config []byte, err error) {
 	return getSessionIns().getConfig()
 }
 
-func GetModel(id string) (config []byte, err error) {
-	return getSessionIns().getModel(id)
-}
+//func GetModel(id string) (config []byte, err error) {
+//	return getSessionIns().getModel(id)
+//}
 func GetDriverInfo() (info []byte, err error) {
 	return getSessionIns().getDriver()
 }

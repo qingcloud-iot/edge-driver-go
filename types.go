@@ -26,6 +26,12 @@ const (
 	fileToken      = "/etc/token"
 )
 const (
+	EdgeDeviceChanged   = "edgeDeviceChanged"   //edge device config change
+	EdgeConfigChanged   = "edgeConfigChanged"   //edge thing config change
+	DriverConfigChanged = "driverConfigChanged" //driver config change
+	SubDeviceChanged    = "subDeviceChanged"    //sub device config change
+)
+const (
 	MaxIdleConns        int = 100
 	MaxIdleConnsPerHost int = 100
 	IdleConnTimeout     int = 90
@@ -118,12 +124,17 @@ type serviceReply struct {
 	Data interface{} `json:"data"`
 }
 type devInfo struct {
-	id       string `json:"id"`
-	protocol string `json:"protocol"`
-	thingId  string `json:"thing_id"`
-	token    string `json:"token"`
-	status   string `json:"status"`
+	Id       string `json:"id"`
+	Protocol string `json:"protocol"`
+	ThingId  string `json:"thing_id"`
+	Token    string `json:"token"`
+	Status   string `json:"status"`
 }
+
+func (d *devInfo) GetToken() string {
+	return d.Token
+}
+
 type reply struct {
 	Code    int         `json:"code"`
 	Data    interface{} `json:"data"`
