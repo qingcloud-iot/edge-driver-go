@@ -123,3 +123,36 @@ func TestRegisterEdgeService(t *testing.T) {
 	assert.Nil(t, err)
 	time.Sleep(3 * time.Second)
 }
+
+func TestGetModel(t *testing.T) {
+	type args struct {
+		id string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantConfig []byte
+		wantErr    bool
+	}{
+		{
+			name: "getModel",
+			args: args{
+				id: "xxxx",
+			},
+			wantConfig: nil,
+			wantErr:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotConfig, err := GetModel(tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetModel() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotConfig, tt.wantConfig) {
+				t.Errorf("GetModel() gotConfig = %v, want %v", gotConfig, tt.wantConfig)
+			}
+		})
+	}
+}

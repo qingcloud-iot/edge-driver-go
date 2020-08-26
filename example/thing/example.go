@@ -38,7 +38,7 @@ func main() {
 				return nil
 			})
 			opts = append(opts, opt)
-			client := edge_driver_go.NewEdgeClient(token,
+			client := edge_driver_go.NewEndClient(token,
 				opts...)
 			time.Sleep(2 * time.Second)
 			for {

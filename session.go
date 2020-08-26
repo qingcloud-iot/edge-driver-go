@@ -36,9 +36,15 @@ var (
 	driverName string
 )
 
+func Register(id string) {
+	driverId = "edge.driver." + id
+	driverName = "edge.driver." + id
+}
 func getSessionIns() *session {
-	driverId = "edge.driver." + os.Getenv("DRIVER_ID")
-	driverName = "edge.driver." + os.Getenv("DRIVER_ID")
+	if driverId == "" {
+		driverId = "edge.driver." + os.Getenv("DRIVER_ID")
+		driverName = "edge.driver." + os.Getenv("DRIVER_ID")
+	}
 	once.Do(func() {
 		_ins = &session{
 			client: nil,
@@ -129,11 +135,6 @@ func (s *session) init() {
 	}
 }
 
-//func (s *session) register(id string, client Client) {
-//	if _, ok := s.subDevices[id]; !ok {
-//		s.subDevices[id] = client
-//	}
-//}
 func (s *session) connect(client mqtt.Client) {
 	for {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {

@@ -24,8 +24,8 @@ import (
 )
 
 const (
-	edgeServiceLen = 8
-	configLen      = 5
+	edgeServiceLen = 8 //service topic len
+	configLen      = 5 //config topic len
 )
 const (
 	deviceSetProperty          = "/sys/%s/%s/thing/property/base/set"
@@ -97,13 +97,15 @@ func (m message) buildPropertyTopic(deviceId, thingId string) string {
 func (m message) buildUserPropertyTopic(deviceId, thingId string) string {
 	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
 }
+
+//build device property data
 func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byte {
 	id := uuid.NewV4().String()
 	params := make(map[string]*property)
 	for k, _ := range meta {
 		property := &property{
 			Value: meta[k],
-			Time:  time.Now().Unix() * 1000,
+			Time:  time.Now().UnixNano() / 1e6,
 		}
 		params[k] = property
 	}
@@ -115,7 +117,7 @@ func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byt
 			DeviceId:  deviceId,
 			ThingId:   thingId,
 			SourceId:  []string{deviceId},
-			EpochTime: time.Now().Unix() * 1000,
+			EpochTime: time.Now().UnixNano() / 1e6,
 		},
 		Params: params,
 	}
@@ -127,6 +129,8 @@ func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byt
 func (m message) buildEventTopic(deviceId, thingId, eventName string) string {
 	return fmt.Sprintf(deviceEventsReport, thingId, deviceId, eventName)
 }
+
+//build device event data
 func (m message) buildEventMsg(deviceId, thingId string, eventName string, meta Metadata) []byte {
 	id := uuid.NewV4().String()
 	message := &thingEventMsg{
@@ -137,16 +141,18 @@ func (m message) buildEventMsg(deviceId, thingId string, eventName string, meta 
 			DeviceId:  deviceId,
 			ThingId:   thingId,
 			SourceId:  []string{deviceId},
-			EpochTime: time.Now().Unix() * 1000,
+			EpochTime: time.Now().UnixNano() / 1e6,
 		},
 		Params: &eventData{
 			Value: meta,
-			Time:  time.Now().Unix() * 1000,
+			Time:  time.Now().UnixNano() / 1e6,
 		},
 	}
 	buf, _ := json.Marshal(message)
 	return buf
 }
+
+//parse device service method
 func (m message) parseServiceMethod(topic string) (string, string, error) {
 	kv := strings.Split(topic, "/")
 	if len(kv) != edgeServiceLen {
@@ -154,6 +160,8 @@ func (m message) parseServiceMethod(topic string) (string, string, error) {
 	}
 	return kv[2], kv[6], nil
 }
+
+//parse device config type
 func (m message) parseConfigType(topic string) (string, error) {
 	kv := strings.Split(topic, "/")
 	if len(kv) != configLen {
@@ -161,6 +169,8 @@ func (m message) parseConfigType(topic string) (string, error) {
 	}
 	return kv[4], nil
 }
+
+//parse device config type
 func (m message) parseResponseMsg(payload []byte) (*serviceRequest, error) {
 	message := &serviceRequest{}
 	err := json.Unmarshal(payload, message)
@@ -169,6 +179,8 @@ func (m message) parseResponseMsg(payload []byte) (*serviceRequest, error) {
 	}
 	return message, nil
 }
+
+//parse device get method type
 func (m message) parseGetServiceMsg(payload []byte) (*serviceGetRequest, error) {
 	message := &serviceGetRequest{}
 	err := json.Unmarshal(payload, message)

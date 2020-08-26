@@ -21,16 +21,22 @@ import (
 	"fmt"
 )
 
+//get edge sub device list
 func GetConfig() (config []byte, err error) {
 	return getSessionIns().getConfig()
 }
 
-//func GetModel(id string) (config []byte, err error) {
-//	return getSessionIns().getModel(id)
-//}
+//get edge sub device model
+func GetModel(id string) (config []byte, err error) {
+	return getSessionIns().getModel(id)
+}
+
+//get edge sub driver info
 func GetDriverInfo() (info []byte, err error) {
 	return getSessionIns().getDriver()
 }
+
+//register edge device service
 func RegisterEdgeService(serviceId string, call OnEdgeServiceCall) (err error) {
 	var (
 		msg    message
@@ -87,6 +93,7 @@ func RegisterEdgeService(serviceId string, call OnEdgeServiceCall) (err error) {
 	return nil
 }
 
+//report edge device property
 func ReportEdgeProperties(ctx context.Context, params Metadata) (err error) {
 	done := wait(func() error {
 		var (
@@ -106,6 +113,7 @@ func ReportEdgeProperties(ctx context.Context, params Metadata) (err error) {
 	}
 }
 
+//report edge device event
 func ReportEdgeEvent(ctx context.Context, eventId string, params Metadata) (err error) {
 	done := wait(func() error {
 		var (
@@ -125,22 +133,12 @@ func ReportEdgeEvent(ctx context.Context, eventId string, params Metadata) (err 
 	}
 }
 
+//set lost call
 func SetConnectLost(call ConnectLost) {
 	getSessionIns().setConnectLost(call)
 }
 
+//set config change call
 func SetConfigChange(call ConfigChangeFunc) {
 	getSessionIns().setConfigChange(call)
 }
-
-///*
-// * 获取模型相关的详细信息
-// *
-// * 阻塞接口.
-// *
-// * config:		 @config 模型相关的详细信息.
-// * err:			 @err 成功返回nil,  失败返回错误信息.
-// */
-//func GetModel(id string) ([]byte, error) {
-//	return getSessionIns().getModel()
-//}

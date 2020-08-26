@@ -52,11 +52,6 @@ func newFuncServerOption(f func(*options)) *funcOption {
 	}
 }
 
-//func SetEdgeServiceCall(call OnEdgeServiceCall) ServerOption {
-//	return newFuncServerOption(func(i *options) {
-//		i.edgeServiceCall = call
-//	})
-//}
 func SetSetServiceCall(call OnSetServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
 		i.setServiceCall = call

@@ -22,7 +22,19 @@
  * err:			 @err 成功返回nil,  失败返回错误信息.
  *
  */
-func GetConfig() ([]byte, error)
+func GetConfig() (config []byte, err error)
+/*
+* 获取模型相关的详细信息
+*
+* 阻塞接口.
+*
+* config:		 @config 模型相关的详细信息.
+* err:			 @err 成功返回nil,  失败返回错误信息.
+*/
+func GetModel(id string) (config []byte,err error) {
+	return getSessionIns().getModel()
+}
+
 /*
  * 边端获取本驱动信息
  *
@@ -31,7 +43,7 @@ func GetConfig() ([]byte, error)
  * info:		 @info 本驱动信息.
  * err:			 @err 成功返回nil,  失败返回错误信息.
  */
-func GetDriverInfo() ([]byte, error)
+func GetDriverInfo() (info []byte,err error)
 /*
  * 边端离线回调通知(异常)
  *
@@ -195,6 +207,5 @@ type Client interface {
     ReportUserMessage(ctx context.Context,data []byte) error     //上报自定义数据
 }
 ```
-
 
 ## example

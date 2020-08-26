@@ -25,7 +25,7 @@ func main() {
 				return []byte("success"), nil
 			})
 			opts = append(opts, opt)
-			client := edge_driver_go.NewEdgeClient(token,
+			client := edge_driver_go.NewEndClient(token,
 				opts...)
 			for {
 				err := client.Online(context.Background())
