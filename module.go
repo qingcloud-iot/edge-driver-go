@@ -64,12 +64,12 @@ func RegisterEdgeService(serviceId string, call OnEdgeServiceCall) (err error) {
 		}
 		resp = &serviceReply{
 			Id:   req.Id,
-			Code: RPC_SUCCESS,
+			Code: RpcSuccess,
 			Data: make(Metadata),
 		}
 		if call != nil {
 			if reply, err = call(req.Params); err != nil {
-				resp.Code = RPC_FAIL
+				resp.Code = RpcFail
 			} else {
 				resp.Code = reply.Code
 				resp.Data = reply.Data

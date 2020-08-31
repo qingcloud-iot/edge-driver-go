@@ -32,7 +32,7 @@ func GetConfig() (config []byte, err error)
 * err:			 @err 成功返回nil,  失败返回错误信息.
 */
 func GetModel(id string) (config []byte,err error) {
-	return getSessionIns().getModel()
+	return getSessionIns().getModel(id)
 }
 
 /*
@@ -158,6 +158,7 @@ type Client interface {
      *
      * ctx:          @ctx, 接口超时控制上下文
      *
+     * 阻塞接口.
      * err:			 @err 成功返回nil,  失败返回错误信息.
      */
 	Online(ctx context.Context) error                        //设备上线通知
@@ -166,6 +167,7 @@ type Client interface {
      *
      * ctx:          @ctx, 接口超时控制上下文
      *
+     * 阻塞接口.
      * err:			 @err 成功返回nil,  失败返回错误信息.
      */
 	Offline(ctx context.Context) error                       //设备下线通知

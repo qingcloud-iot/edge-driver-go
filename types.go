@@ -22,7 +22,7 @@ import (
 const (
 	messageVersion = "v0.0.1"
 	hubBroker      = "tcp://127.0.0.1:1883"
-	metadataBroker = "127.0.0.1:1889"
+	metadataBroker = "http://127.0.0.1:1889"
 	fileToken      = "/etc/token"
 )
 const (
@@ -38,8 +38,8 @@ const (
 )
 
 const (
-	RPC_SUCCESS = 200 //success
-	RPC_FAIL    = 201 //rpc timeout
+	RpcSuccess = 200 //success
+	RpcFail    = 201 //rpc timeout
 )
 
 const (

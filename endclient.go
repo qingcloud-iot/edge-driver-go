@@ -106,12 +106,12 @@ func (e *endClient) setCall(topic string, payload []byte) {
 	}
 	resp = &serviceReply{
 		Id:   req.Id,
-		Code: RPC_SUCCESS,
+		Code: RpcSuccess,
 		Data: make(Metadata),
 	}
 	if e.setServiceCall != nil {
 		if err = e.setServiceCall(req.Params); err != nil {
-			resp.Code = RPC_FAIL
+			resp.Code = RpcFail
 		}
 	}
 	buf, err = json.Marshal(resp)
@@ -143,12 +143,12 @@ func (e *endClient) getCall(topic string, payload []byte) {
 	}
 	resp = &serviceReply{
 		Id:   req.Id,
-		Code: RPC_SUCCESS,
+		Code: RpcSuccess,
 		Data: make(Metadata),
 	}
 	if e.setServiceCall != nil {
 		if data, err = e.getServiceCall(req.Params); err != nil {
-			resp.Code = RPC_FAIL
+			resp.Code = RpcFail
 		} else {
 			resp.Data = data
 		}
@@ -202,18 +202,18 @@ func (e *endClient) endCall(topic string, payload []byte) {
 	}
 	resp = &serviceReply{
 		Id:   req.Id,
-		Code: RPC_SUCCESS,
+		Code: RpcSuccess,
 		Data: make(Metadata),
 	}
 	if e.endServiceCall != nil {
 		if reply, err = e.endServiceCall(methodName, req.Params); err != nil {
-			resp.Code = RPC_FAIL
+			resp.Code = RpcFail
 		} else {
 			resp.Code = reply.Code
 			resp.Data = reply.Data
 		}
 		if err = e.validate.validateServiceOutput(context.Background(), deviceId, methodName, data); err != nil {
-			resp.Code = RPC_FAIL
+			resp.Code = RpcFail
 		}
 		buf, err = json.Marshal(resp)
 		if err != nil {
