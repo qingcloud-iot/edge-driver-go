@@ -17,6 +17,7 @@ package edge_driver_go
 
 import "context"
 
+//todo need fix
 //validate device thing model
 type validate interface {
 	validateProperties(ctx context.Context, deviceId string, metadata Metadata) error

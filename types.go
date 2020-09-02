@@ -29,7 +29,7 @@ const (
 	messageVersion    = "v0.0.1"
 	hubBroker         = "tcp://127.0.0.1:1883"
 	metadataBroker    = "http://139.198.21.191:9611"
-	edgeInfoRequest   = metadataBroker + "/internal/data/edge_info"    //request edge info
+	edgeInfoRequest   = metadataBroker + "/internal/data/edge_info/"   //request edge info
 	edgeDriverRequest = metadataBroker + "/internal/data/edge_driver/" //request driver info
 	subDeviceRequest  = metadataBroker + "/internal/data/child_device/"
 	userThingId       = "iott-end-user-system"
@@ -132,8 +132,8 @@ type serviceReply struct {
 
 //dev info
 type edgeDevInfo struct {
-	Id      string `json:"id"`
-	ThingId string `json:"thing_id"`
+	Id      string `json:"deviceId"`
+	ThingId string `json:"thingId"`
 }
 type driverResult struct {
 	DriverId  string    `json:"driverId"`

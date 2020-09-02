@@ -58,3 +58,8 @@ func TestGetModel(t *testing.T) {
 	assert.Nil(t, err)
 	fmt.Println(res)
 }
+func TestGetEdgeInfo(t *testing.T) {
+	res, err := getSessionIns().getEdgeInfo()
+	assert.Nil(t, err)
+	fmt.Println(res)
+}

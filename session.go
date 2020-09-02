@@ -17,6 +17,7 @@ package edge_driver_go
 
 import (
 	"encoding/json"
+	"errors"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"io/ioutil"
 	"net"
@@ -29,19 +30,12 @@ import (
 )
 
 var (
-	_ins       *session
-	once       sync.Once
-	driverId   string
-	driverName string
+	_ins  *session
+	_once sync.Once
 )
 
 func getSessionIns() *session {
-	os.Setenv("DRIVER_ID", "test_driver_id")
-	if driverId == "" {
-		driverId = "edge.driver." + os.Getenv("DRIVER_ID")
-		driverName = "edge.driver." + os.Getenv("DRIVER_ID")
-	}
-	once.Do(func() {
+	_once.Do(func() {
 		_ins = &session{
 			client: nil,
 			status: hubNotConnected,
@@ -60,6 +54,7 @@ type session struct {
 	subDevices     map[string]Client //sub device
 	client         mqtt.Client       //hub client
 	metadataClient *http.Client
+	driverId       string
 	deviceId       string
 	thingId        string
 	topics         []string
@@ -75,6 +70,13 @@ func (s *session) init() {
 		err    error
 		result *edgeDevInfo
 	)
+	if s.driverId == "" {
+		if os.Getenv("DRIVER_ID") == "" {
+			panic(errors.New("driver id is not set,sdk can't run"))
+		} else {
+			s.driverId = "edge.driver." + os.Getenv("DRIVER_ID")
+		}
+	}
 	s.metadataClient = &http.Client{
 		Transport: &http.Transport{
 			Proxy: http.ProxyFromEnvironment,
@@ -101,9 +103,9 @@ func (s *session) init() {
 	s.thingId = result.ThingId
 	options := mqtt.NewClientOptions()
 	options.AddBroker(hubBroker).
-		SetClientID(driverId).
-		SetUsername(driverName).
-		SetPassword(driverName).
+		SetClientID(s.driverId).
+		SetUsername(s.driverId).
+		SetPassword(s.driverId).
 		SetCleanSession(true).
 		SetAutoReconnect(true).
 		SetKeepAlive(30 * time.Second).
@@ -220,6 +222,7 @@ func (s *session) getEdgeInfo() (*edgeDevInfo, error) {
 	defer resp.Body.Close()
 	content, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
+		s.logger.Error("getEdgeInfo err:", err.Error(), string(content))
 		return response, err
 	}
 	err = json.Unmarshal(content, &result)
@@ -233,7 +236,7 @@ func (s *session) getEdgeInfo() (*edgeDevInfo, error) {
 			response.Id = v
 		case strings.Contains(k, "edge_id"):
 		case strings.Contains(k, "thing_id"):
-			response.Id = v
+			response.ThingId = v
 		case strings.Contains(k, "edge_version"):
 		case strings.Contains(k, "user_id"):
 		}
@@ -251,7 +254,7 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 		//temp map[string]string
 	)
 	//temp = make(map[string]string)
-	resp, err = s.metadataClient.Get(edgeDriverRequest + os.Getenv("DRIVER_ID"))
+	resp, err = s.metadataClient.Get(edgeDriverRequest + s.driverId)
 	if err != nil {
 		return response, err
 	}
@@ -355,7 +358,7 @@ func (s *session) getDriver() (string, error) {
 		response string
 	)
 	//response = Metadata{}
-	resp, err = s.metadataClient.Get(edgeDriverRequest + os.Getenv("DRIVER_ID"))
+	resp, err = s.metadataClient.Get(edgeDriverRequest + s.driverId)
 	if err != nil {
 		return response, err
 	}

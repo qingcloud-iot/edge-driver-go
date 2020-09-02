@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 )
-
 func main() {
 	subs, err := edge_driver_go.GetConfig()
 	if err != nil {
