@@ -18,6 +18,7 @@ package edge_driver_go
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -35,19 +36,18 @@ type endClient struct {
 }
 
 // edge sdk init
-//
-func NewEndClient(token string, opt ...ServerOption) Client {
+func NewEndClient(token string, opt ...ServerOption) (Client, error) {
 	var (
 		config config
 		err    error
 		opts   options
 	)
 	if token == "" {
-		panic("token is illegal")
+		return nil, errors.New("token is illegal")
 	}
 	config, err = newDeviceConfig(token)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	opts = defaultServerOptions
 	for _, o := range opt {
@@ -66,29 +66,32 @@ func NewEndClient(token string, opt ...ServerOption) Client {
 		ctx:             ctx,
 		cancel:          cancel,
 	}
-	return edge
+	return edge, nil
 }
 func (e *endClient) init() error {
 	var (
 		err error
 		msg message
 	)
-	//end service
-	err = getSessionIns().subscribe(msg.buildSetTopic(e.config.DeviceId(), e.config.ThingId()), e.endCall)
-	if err != nil {
-		return err
-	}
-	err = getSessionIns().subscribe(msg.buildGetTopic(e.config.DeviceId(), e.config.ThingId()), e.getCall)
-	if err != nil {
-		return err
-	}
-	err = getSessionIns().subscribes(msg.buildServiceTopic(e.config.DeviceId(), e.config.ThingId(), e.config.Services()), e.endCall)
-	if err != nil {
-		return err
-	}
-	err = getSessionIns().subscribe(msg.buildUserServiceTopic(e.config.DeviceId(), e.config.ThingId()), e.userCall)
-	if err != nil {
-		return err
+	if isUserDevice(e.config.ThingId()) {
+		err = getSessionIns().subscribe(msg.buildUserServiceTopic(e.config.DeviceId(), e.config.ThingId()), e.userCall)
+		if err != nil {
+			return err
+		}
+	} else {
+		//end service
+		err = getSessionIns().subscribe(msg.buildSetTopic(e.config.DeviceId(), e.config.ThingId()), e.endCall)
+		if err != nil {
+			return err
+		}
+		err = getSessionIns().subscribe(msg.buildGetTopic(e.config.DeviceId(), e.config.ThingId()), e.getCall)
+		if err != nil {
+			return err
+		}
+		err = getSessionIns().subscribe(fmt.Sprintf(deviceService, e.config.DeviceId(), e.config.ThingId(), "+"), e.endCall)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

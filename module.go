@@ -22,17 +22,12 @@ import (
 )
 
 //get edge sub device list
-func GetConfig() (config []byte, err error) {
+func GetConfig() (config []*SubDeviceInfo, err error) {
 	return getSessionIns().getConfig()
 }
 
-//get edge sub device model
-func GetModel(id string) (config []byte, err error) {
-	return getSessionIns().getModel(id)
-}
-
 //get edge sub driver info
-func GetDriverInfo() (info []byte, err error) {
+func GetDriverInfo() (info string, err error) {
 	return getSessionIns().getDriver()
 }
 
@@ -48,16 +43,12 @@ func RegisterEdgeService(serviceId string, call OnEdgeServiceCall) (err error) {
 		//methodName string
 	)
 	logger = newLogger()
-	err = getSessionIns().subscribes(msg.buildServiceTopic(deviceId, thingId, []string{serviceId}), func(topic string, payload []byte) {
+	err = getSessionIns().subscribes(msg.buildServiceTopic(getSessionIns().getDeviceId(), getSessionIns().getThingId(), []string{serviceId}), func(topic string, payload []byte) {
 		defer func() {
 			if err != nil {
 				logger.Error(topic, err.Error())
 			}
 		}()
-		deviceId, _, err = msg.parseServiceMethod(topic)
-		if err != nil {
-			return
-		}
 		req, err = msg.parseResponseMsg(payload)
 		if err != nil {
 			return
@@ -101,8 +92,8 @@ func ReportEdgeProperties(ctx context.Context, params Metadata) (err error) {
 			msg   message
 			data  []byte
 		)
-		topic = msg.buildPropertyTopic(deviceId, thingId)
-		data = msg.buildPropertyMsg(deviceId, thingId, params)
+		topic = msg.buildPropertyTopic(getSessionIns().getDeviceId(), getSessionIns().getThingId())
+		data = msg.buildPropertyMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), params)
 		return getSessionIns().publish(topic, data)
 	})
 	select {
@@ -121,8 +112,8 @@ func ReportEdgeEvent(ctx context.Context, eventId string, params Metadata) (err 
 			msg   message
 			data  []byte
 		)
-		topic = msg.buildEventTopic(deviceId, thingId, eventId)
-		data = msg.buildEventMsg(deviceId, thingId, eventId, params)
+		topic = msg.buildEventTopic(getSessionIns().getDeviceId(), getSessionIns().getThingId(), eventId)
+		data = msg.buildEventMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), eventId, params)
 		return getSessionIns().publish(topic, data)
 	})
 	select {

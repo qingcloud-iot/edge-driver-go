@@ -54,3 +54,6 @@ func wait(f func() error) <-chan error {
 	}()
 	return done
 }
+func isUserDevice(id string) bool {
+	return id == userThingId
+}

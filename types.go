@@ -19,11 +19,20 @@ import (
 	"errors"
 )
 
+type TokenStatus string
+
 const (
-	messageVersion = "v0.0.1"
-	hubBroker      = "tcp://127.0.0.1:1883"
-	metadataBroker = "http://127.0.0.1:1889"
-	fileToken      = "/etc/token"
+	Enable  TokenStatus = "enable"  //token enable
+	Disable TokenStatus = "disable" //token disable
+)
+const (
+	messageVersion    = "v0.0.1"
+	hubBroker         = "tcp://127.0.0.1:1883"
+	metadataBroker    = "http://139.198.21.191:9611"
+	edgeInfoRequest   = metadataBroker + "/internal/data/edge_info"    //request edge info
+	edgeDriverRequest = metadataBroker + "/internal/data/edge_driver/" //request driver info
+	subDeviceRequest  = metadataBroker + "/internal/data/child_device/"
+	userThingId       = "iott-end-user-system"
 )
 const (
 	EdgeDeviceChanged   = "edgeDeviceChanged"   //edge device config change
@@ -120,16 +129,46 @@ type serviceReply struct {
 	Id   string      `json:"id"`
 	Data interface{} `json:"data"`
 }
-type devInfo struct {
-	Id       string `json:"id"`
-	Protocol string `json:"protocol"`
-	ThingId  string `json:"thing_id"`
-	Token    string `json:"token"`
-	Status   string `json:"status"`
+
+//dev info
+type edgeDevInfo struct {
+	Id      string `json:"id"`
+	ThingId string `json:"thing_id"`
+}
+type driverResult struct {
+	DriverId  string    `json:"driverId"`
+	DriverCfg string    `json:"driverCfg"`
+	Channels  []channel `json:"channels"`
+}
+type channel struct {
+	SubDeviceId  string `json:"subDeviceId"`
+	SubDeviceCfg string `json:"subDeviceCfg"`
+	ChannelCfg   string `json:"channelCfg"`
 }
 
-func (d *devInfo) GetToken() string {
-	return d.Token
+//sub device info
+type SubDeviceInfo struct {
+	Token       string                 `json:"token"`        //device token
+	TokenStatus TokenStatus            `json:"token_status"` //device token status, enable or disable
+	DeviceId    string                 `json:"device_id"`    //device id
+	Ext         map[string]interface{} `json:"ext"`          //device custom config
+	ChannelCfg  map[string]interface{} `json:"channel_cfg"`  //sub device config, example
+}
+
+//sub device info
+type device struct {
+	DeviceId     string      `json:"deviceId"`
+	TokenContent string      `json:"tokenContent"`
+	TokenStatus  TokenStatus `json:"tokenStatus"`
+	ThingId      string      `json:"thingId"`
+}
+
+//driver info
+type driverInfo struct {
+	Id       string                 `json:"id"`
+	Protocol string                 `json:"protocol"`
+	Version  string                 `json:"version"`
+	Custom   map[string]interface{} `json:"custom"`
 }
 
 type reply struct {
