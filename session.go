@@ -74,7 +74,7 @@ func (s *session) init() {
 		if os.Getenv("DRIVER_ID") == "" {
 			panic(errors.New("driver id is not set,sdk can't run"))
 		} else {
-			s.driverId = "edge.driver." + os.Getenv("DRIVER_ID")
+			s.driverId = os.Getenv("DRIVER_ID")
 		}
 	}
 	s.metadataClient = &http.Client{
@@ -103,9 +103,9 @@ func (s *session) init() {
 	s.thingId = result.ThingId
 	options := mqtt.NewClientOptions()
 	options.AddBroker(hubBroker).
-		SetClientID(s.driverId).
-		SetUsername(s.driverId).
-		SetPassword(s.driverId).
+		SetClientID("edge.driver." + s.driverId).
+		SetUsername("edge.driver." + s.driverId).
+		SetPassword("edge.driver." + s.driverId).
 		SetCleanSession(true).
 		SetAutoReconnect(true).
 		SetKeepAlive(30 * time.Second).
