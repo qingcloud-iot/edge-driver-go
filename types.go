@@ -28,7 +28,7 @@ const (
 const (
 	messageVersion    = "v0.0.1"
 	hubBroker         = "tcp://127.0.0.1:1883"
-	metadataBroker    = "http://139.198.21.191:9611"
+	metadataBroker    = "http://127.0.0.1:9611"
 	edgeInfoRequest   = metadataBroker + "/internal/data/edge_info/"   //request edge info
 	edgeDriverRequest = metadataBroker + "/internal/data/edge_driver/" //request driver info
 	subDeviceRequest  = metadataBroker + "/internal/data/child_device/"
