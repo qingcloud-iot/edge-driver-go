@@ -40,6 +40,7 @@ type Client interface {
 	ReportProperties(ctx context.Context, params Metadata) error            //report device property to cloud
 	ReportEvent(ctx context.Context, eventId string, params Metadata) error //report device event to cloud
 	ReportUserMessage(ctx context.Context, data []byte) error               //report user device message to cloud
+	ReportDeviceInfo(ctx context.Context, params Metadata) error            //report device info to cloud
 }
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)

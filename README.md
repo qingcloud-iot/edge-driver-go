@@ -11,8 +11,22 @@
 其中,数据转换和数据和命令处理部分为可选,一种是转换成Qingcloud　IoT物模型规范格式数据，另外一种是将数据直接透传不做解析，直接上传云端
 
 ## 设备驱动分SDK接口
+- DRIVER_HUB_ADDRESS 默认为本地地址（tcp://127.0.0.1:1883），调试过程中可以修改,方便调试
+- DRIVER_META_ADDRESS 默认为本地地址（tcp://127.0.0.1:9611），调试过程中可以修改,方便调试
 ### 驱动配置管理接口
 ```go
+/*
+ * 边端上报探测发现的设备信息
+ *
+ * 阻塞接口
+ *
+ * ctx:          @ctx, 接口超时控制上下文
+ * eventId:      @deviceType, 事件标识符.
+ * params:       @Metadata, 属性数组.
+ * err:			 @err 成功返回nil,  失败返回错误信息.
+ *
+ */
+func ReportDiscovery(ctx context.Context,deviceType string, meta Metadata) error
 /*
  * 边端获取本配置信息(包括子设备属性　token等)
  *
@@ -195,6 +209,17 @@ type Client interface {
      * err:			 @err 成功返回nil,  失败返回错误信息.
      */
     ReportUserMessage(ctx context.Context,data []byte) error     //上报自定义数据
+    /*
+     * 子设备上报设备信息.
+     *
+     *
+     * ctx:       @ctx, 接口超时控制上下文
+     * data:      @data, 设备数据.
+     *
+     * 阻塞接口.
+     * err:			 @err 成功返回nil,  失败返回错误信息.
+     */
+    ReportDeviceInfo(ctx context.Context, params Metadata) error			//上报设备数据
 }
 ```
 

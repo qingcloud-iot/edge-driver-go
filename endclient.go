@@ -376,3 +376,21 @@ func (e *endClient) ReportEvent(ctx context.Context, eventId string, params Meta
 		return rpcTimeout
 	}
 }
+func (e *endClient) ReportDeviceInfo(ctx context.Context, params Metadata) error {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+		)
+		topic = msg.buildDeviceInfoTopic(e.config.DeviceId(), e.config.ThingId())
+		data = msg.buildDeviceInfoMsg(e.config.DeviceId(), e.config.ThingId(), params)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return rpcTimeout
+	}
+}

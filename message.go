@@ -36,7 +36,9 @@ const (
 	userDevicePropertiesReport = "/sys/%s/%s/user/msg"
 	userDeviceService          = "/sys/%s/%s/user/down/+/call"
 	deviceEventsReport         = "/sys/%s/%s/thing/event/%s/post"
+	deviceInfoReport           = "/sys/%s/%s/thing/deviceinfo/post"
 	configChange               = "/iot/internal/notify/+"
+	deviceDiscoveryReport      = "/sys/%s/device/discovery/post"
 )
 
 type message struct {
@@ -67,6 +69,11 @@ func (m message) buildUserServiceTopic(deviceId, thingId string) string {
 	return fmt.Sprintf(userDeviceService, thingId, deviceId)
 }
 
+//build discovery topic
+func (m message) buildDiscoveryTopic(t string) string {
+	return fmt.Sprintf(deviceDiscoveryReport, t)
+}
+
 //build device get topic
 func (m message) buildServiceTopic(deviceId, thingId string, services []string) []string {
 	result := make([]string, len(services))
@@ -74,6 +81,21 @@ func (m message) buildServiceTopic(deviceId, thingId string, services []string) 
 		result[k] = fmt.Sprintf(deviceService, thingId, deviceId, v)
 	}
 	return result
+}
+
+//build device property topic
+func (m message) buildPropertyTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
+}
+
+//build device property topic
+func (m message) buildDeviceInfoTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(deviceInfoReport, thingId, deviceId)
+}
+
+//build device property topic
+func (m message) buildUserPropertyTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
 }
 
 // build device status struct
@@ -88,20 +110,10 @@ func (m message) buildHeartbeatMsg(deviceId, thingId, status string) []byte {
 	return buf
 }
 
-//build device property topic
-func (m message) buildPropertyTopic(deviceId, thingId string) string {
-	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
-}
-
-//build device property topic
-func (m message) buildUserPropertyTopic(deviceId, thingId string) string {
-	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
-}
-
 //build device property data
 func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byte {
 	id := uuid.NewV4().String()
-	params := make(map[string]*property)
+	params := make(map[string]interface{})
 	for k, _ := range meta {
 		property := &property{
 			Value: meta[k],
@@ -120,6 +132,46 @@ func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byt
 			EpochTime: time.Now().UnixNano() / 1e6,
 		},
 		Params: params,
+	}
+	buf, _ := json.Marshal(message)
+	return buf
+}
+
+//build device info data
+func (m message) buildDiscoveryMsg(deviceId, thingId string, meta Metadata) []byte {
+	id := uuid.NewV4().String()
+	message := &thingPropertyMsg{
+		Id:      id,
+		Version: messageVersion,
+		Type:    deviceDeviceInfoType,
+		Metadata: &messageMeta{
+			DeviceId:  deviceId,
+			ThingId:   thingId,
+			SourceId:  []string{deviceId},
+			EpochTime: time.Now().UnixNano() / 1e6,
+		},
+		Params: meta,
+	}
+	buf, _ := json.Marshal(message)
+	return buf
+}
+
+//build device info data
+func (m message) buildDeviceInfoMsg(deviceId, thingId string, meta Metadata) []byte {
+	id := uuid.NewV4().String()
+	meta["deviceId"] = deviceId
+	meta["thingId"] = thingId
+	message := &thingPropertyMsg{
+		Id:      id,
+		Version: messageVersion,
+		Type:    deviceDeviceInfoType,
+		Metadata: &messageMeta{
+			DeviceId:  deviceId,
+			ThingId:   thingId,
+			SourceId:  []string{deviceId},
+			EpochTime: time.Now().UnixNano() / 1e6,
+		},
+		Params: meta,
 	}
 	buf, _ := json.Marshal(message)
 	return buf

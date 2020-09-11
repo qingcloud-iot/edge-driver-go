@@ -67,9 +67,15 @@ type session struct {
 
 func (s *session) init() {
 	var (
-		err    error
-		result *edgeDevInfo
+		err        error
+		result     *edgeDevInfo
+		hubAddress string
 	)
+	if os.Getenv("DRIVER_HUB_ADDRESS") == "" {
+		hubAddress = hubBroker
+	} else {
+		hubAddress = os.Getenv("DRIVER_HUB_ADDRESS")
+	}
 	if s.driverId == "" {
 		if os.Getenv("DRIVER_ID") == "" {
 			panic(errors.New("driver id is not set,sdk can't run"))
@@ -102,7 +108,7 @@ func (s *session) init() {
 	s.deviceId = result.Id
 	s.thingId = result.ThingId
 	options := mqtt.NewClientOptions()
-	options.AddBroker(hubBroker).
+	options.AddBroker(hubAddress).
 		SetClientID("edge.driver." + s.driverId).
 		SetUsername("edge.driver." + s.driverId).
 		SetPassword("edge.driver." + s.driverId).
@@ -152,7 +158,7 @@ func (s *session) connect(client mqtt.Client) {
 	for {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			if s.logger != nil {
-				s.logger.Info("connect retry...")
+				s.logger.Info("connect retry...,", token.Error().Error())
 			}
 			time.Sleep(3 * time.Second)
 			continue
@@ -283,7 +289,7 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 			}
 			dev := &SubDeviceInfo{
 				Token:       val.TokenContent,
-				TokenStatus: val.TokenStatus,
+				TokenStatus: TokenStatus(val.TokenStatus),
 				DeviceId:    val.DeviceId,
 				Ext:         deviceConfig,
 				ChannelCfg:  channelConfig,
@@ -301,7 +307,8 @@ func (s *session) getSubDevices() (map[string]device, error) {
 		response map[string]device
 		result   map[string]string
 	)
-	response = make(map[string]device, 0)
+	result = make(map[string]string)
+	response = make(map[string]device)
 	resp, err = s.metadataClient.Get(subDeviceRequest)
 	if err != nil {
 		return response, err
@@ -314,7 +321,7 @@ func (s *session) getSubDevices() (map[string]device, error) {
 	s.logger.Info("[getSubDevices] ", string(content))
 	err = json.Unmarshal(content, &result)
 	if err != nil {
-		s.logger.Error("[getSubDevices] Unmarshal err:", err.Error())
+		//s.logger.Error("[getSubDevices] Unmarshal err:", err.Error())
 		return response, err
 	}
 	for _, v := range result {

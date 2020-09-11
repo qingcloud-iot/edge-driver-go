@@ -40,3 +40,7 @@ func TestGetDriverInfo(t *testing.T) {
 	assert.Nil(t, err)
 	t.Log(res)
 }
+func TestDiscovery(t *testing.T) {
+	err := ReportDiscovery(context.Background(), "onvif", Metadata{"name": "hello world"})
+	assert.Nil(t, err)
+}

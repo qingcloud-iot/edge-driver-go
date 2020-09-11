@@ -25,6 +25,7 @@ const (
 	Enable  TokenStatus = "enable"  //token enable
 	Disable TokenStatus = "disable" //token disable
 )
+
 const (
 	messageVersion    = "v0.0.1"
 	hubBroker         = "tcp://127.0.0.1:1883"
@@ -60,8 +61,9 @@ const (
 	offline = "offline" //offline
 )
 const (
-	devicePropertyType = "thing.property.post"
-	deviceEventType    = "thing.event.%s.post"
+	devicePropertyType   = "thing.property.post"
+	deviceDeviceInfoType = "thing.deviceinfo.post"
+	deviceEventType      = "thing.event.%s.post"
 )
 
 var (
@@ -91,11 +93,11 @@ type messageMeta struct {
 
 //device property
 type thingPropertyMsg struct {
-	Id       string               `json:"id"`
-	Version  string               `json:"version"`
-	Type     string               `json:"type"`
-	Metadata *messageMeta         `json:"metadata"`
-	Params   map[string]*property `json:"params"`
+	Id       string                 `json:"id"`
+	Version  string                 `json:"version"`
+	Type     string                 `json:"type"`
+	Metadata *messageMeta           `json:"metadata"`
+	Params   map[string]interface{} `json:"params"`
 }
 
 //device event
@@ -157,10 +159,10 @@ type SubDeviceInfo struct {
 
 //sub device info
 type device struct {
-	DeviceId     string      `json:"deviceId"`
-	TokenContent string      `json:"tokenContent"`
-	TokenStatus  TokenStatus `json:"tokenStatus"`
-	ThingId      string      `json:"thingId"`
+	DeviceId     string `json:"deviceId"`
+	TokenContent string `json:"tokenContent"`
+	TokenStatus  string `json:"tokenStatus"`
+	ThingId      string `json:"thingId"`
 }
 
 //driver info

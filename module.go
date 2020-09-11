@@ -21,6 +21,27 @@ import (
 	"fmt"
 )
 
+//report discovery device (supported device type is onvif)
+func ReportDiscovery(ctx context.Context, deviceType string, meta Metadata) error {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+		)
+		topic = msg.buildDiscoveryTopic(deviceType)
+		data = msg.buildDeviceInfoMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), meta)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return rpcTimeout
+	}
+	return nil
+}
+
 //get edge sub device list
 func GetConfig() (config []*SubDeviceInfo, err error) {
 	return getSessionIns().getConfig()
