@@ -13,6 +13,7 @@
 ## 设备驱动分SDK接口
 - DRIVER_HUB_ADDRESS 默认为本地地址（tcp://127.0.0.1:1883），调试过程中可以修改,方便调试
 - DRIVER_META_ADDRESS 默认为本地地址（tcp://127.0.0.1:9611），调试过程中可以修改,方便调试
+
 ### 驱动配置管理接口
 ```go
 /*
@@ -202,22 +203,22 @@ type Client interface {
      * 子设备上报自定义数据.
      *
      *
-     * ctx:       @ctx, 接口超时控制上下文
-     * data:      @data, 设备自定义数据.
+     * ctx:         @ctx, 接口超时控制上下文
+     * data:        @data, 设备自定义数据.
      *
      * 阻塞接口.
-     * err:			 @err 成功返回nil,  失败返回错误信息.
+     * err:	        @err 成功返回nil,  失败返回错误信息.
      */
     ReportUserMessage(ctx context.Context,data []byte) error     //上报自定义数据
     /*
-     * 子设备上报设备信息.
+     * 子设备上报设备扩展信息.
      *
      *
-     * ctx:       @ctx, 接口超时控制上下文
-     * data:      @data, 设备数据.
+     * ctx:         @ctx, 接口超时控制上下文
+     * data:        @data, 设备数据.
      *
      * 阻塞接口.
-     * err:			 @err 成功返回nil,  失败返回错误信息.
+     * err:         @err 成功返回nil,  失败返回错误信息.
      */
     ReportDeviceInfo(ctx context.Context, params Metadata) error			//上报设备数据
 }
