@@ -48,18 +48,18 @@ func getSessionIns() *session {
 
 //module api
 type session struct {
-	lock           sync.RWMutex
-	subDevices     map[string]Client //sub device
-	client         mqtt.Client       //hub client
+	//lock           sync.RWMutex
+	//subDevices     map[string]Client //sub device
+	client         mqtt.Client //hub client
 	metadataClient *http.Client
 	driverId       string
 	deviceId       string
 	thingId        string
-	topics         []string
-	status         uint32           //0:not connected, 1:connected
-	connectLost    ConnectLost      //connect lost callback
-	configChange   ConfigChangeFunc //config change
-	logger         Logger
+	//topics         []string
+	status       uint32           //0:not connected, 1:connected
+	connectLost  ConnectLost      //connect lost callback
+	configChange ConfigChangeFunc //config change
+	logger       Logger
 	//messageArrived messageArrived			//message callback
 }
 
