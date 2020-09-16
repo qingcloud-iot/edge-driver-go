@@ -11,6 +11,7 @@
 其中,数据转换和数据和命令处理部分为可选,一种是转换成Qingcloud　IoT物模型规范格式数据，另外一种是将数据直接透传不做解析，直接上传云端
 
 ## 设备驱动分SDK接口
+调试（环境变量）
 - DRIVER_HUB_ADDRESS 默认为本地地址（tcp://127.0.0.1:1883），调试过程中可以修改,方便调试
 - DRIVER_META_ADDRESS 默认为本地地址（http://127.0.0.1:9611），调试过程中可以修改,方便调试
 
@@ -207,7 +208,7 @@ type Client interface {
      * data:        @data, 设备自定义数据.
      *
      * 阻塞接口.
-     * err:	        @err 成功返回nil,  失败返回错误信息.
+     * err:         @err 成功返回nil,  失败返回错误信息.
      */
     ReportUserMessage(ctx context.Context,data []byte) error     //上报自定义数据
     /*
@@ -225,3 +226,70 @@ type Client interface {
 ```
 
 ## example
+
+下面是一个驱动sdk示例代码
+
+```go
+func main() {
+    //获取驱动下分配子设备信息
+	subs, err := edge_driver_go.GetConfig()
+	if err != nil {
+		panic(err)
+	}
+	var wg sync.WaitGroup
+	wg.Add(len(subs))
+	for _, v := range subs {
+        //设备token可用
+		if v.TokenStatus == edge_driver_go.Enable {
+			go func(token string) {
+				defer func() {
+					wg.Done()
+				}()
+				var opts []edge_driver_go.ServerOption
+				opt := edge_driver_go.SetEndServiceCall(func(name string, args edge_driver_go.Metadata) (reply *edge_driver_go.Reply, e error) {
+					fmt.Println(name, args)
+					return
+				})
+				opts = append(opts, opt)
+				opt = edge_driver_go.SetGetServiceCall(func(args []string) (metadata edge_driver_go.Metadata, e error) {
+					fmt.Println(args)
+					return
+				})
+				opts = append(opts, opt)
+				opt = edge_driver_go.SetSetServiceCall(func(args edge_driver_go.Metadata) error {
+					fmt.Println(args)
+					return nil
+				})
+				opts = append(opts, opt)
+				client, err := edge_driver_go.NewEndClient(token,
+					opts...)
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
+				for {
+                    //驱动上报子设备上线
+					err := client.Online(context.Background())
+					if err != nil {
+						fmt.Println(err)
+					}
+					time.Sleep(2 * time.Second)
+                    //云端定义端设备属性模型（temp）
+					err = client.ReportProperties(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()})
+					if err != nil {
+						fmt.Println(err)
+					}
+                    //云端定义端设备事件模型（temperatureEvent）
+					err = client.ReportEvent(context.Background(), "temperatureEvent", edge_driver_go.Metadata{"temperature": rand.Float32(), "reason": true})
+					if err != nil {
+						fmt.Println(err)
+					}
+					time.Sleep(2 * time.Second)
+				}
+			}(v.Token)
+		}
+	}
+	wg.Wait()
+}
+
+```
