@@ -225,7 +225,7 @@ type Client interface {
 }
 ```
 
-## example
+## 示例
 
 下面是一个驱动sdk示例代码
 
