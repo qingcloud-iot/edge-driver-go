@@ -45,8 +45,6 @@ func getSessionIns() *session {
 	})
 	return _ins
 }
-func init() {
-}
 
 //module api
 type session struct {
@@ -145,7 +143,7 @@ func (s *session) init() {
 			}
 		})
 	client := mqtt.NewClient(options)
-	s.connect(client) //reconnected
+	s.connect(hubAddress, client) //reconnected
 	s.client = client
 }
 func (s *session) getDeviceId() string {
@@ -154,11 +152,11 @@ func (s *session) getDeviceId() string {
 func (s *session) getThingId() string {
 	return s.thingId
 }
-func (s *session) connect(client mqtt.Client) {
+func (s *session) connect(address string, client mqtt.Client) {
 	for {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			if s.logger != nil {
-				s.logger.Info("connect retry...,", token.Error().Error())
+				s.logger.Info("[sdk] connect retry...,", address, token.Error().Error())
 			}
 			time.Sleep(3 * time.Second)
 			continue
@@ -228,7 +226,7 @@ func (s *session) getEdgeInfo() (*edgeDevInfo, error) {
 	defer resp.Body.Close()
 	content, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		s.logger.Error("getEdgeInfo err:", err.Error(), string(content))
+		s.logger.Error("[sdk] getEdgeInfo err:", err.Error(), string(content))
 		return response, err
 	}
 	err = json.Unmarshal(content, &result)
@@ -251,13 +249,13 @@ func (s *session) getEdgeInfo() (*edgeDevInfo, error) {
 }
 func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 	var (
-		err        error
-		resp       *http.Response
-		content    []byte
-		result     driverResult
-		response   []*SubDeviceInfo
-		subDevices map[string]device
-		//temp map[string]string
+		err      error
+		resp     *http.Response
+		content  []byte
+		result   driverResult
+		response []*SubDeviceInfo
+		//subDevices map[string]device
+		temp *device
 	)
 	//temp = make(map[string]string)
 	resp, err = s.metadataClient.Get(edgeDriverRequest + s.driverId)
@@ -270,33 +268,59 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 		return response, err
 	}
 	if err = json.Unmarshal(content, &result); err != nil {
-		s.logger.Error("getConfig Unmarshal:", err.Error())
+		s.logger.Error("[sdk] getConfig Unmarshal:", err.Error())
 		return response, err
 	}
-	if subDevices, err = s.getSubDevices(); err != nil {
-		s.logger.Error("getSubDevices Unmarshal:", err.Error())
-		return response, err
-	}
+	//if subDevices, err = s.getSubDevices(); err != nil {
+	//	s.logger.Error("getSubDevices Unmarshal:", err.Error())
+	//	return response, err
+	//}
 	for _, v := range result.Channels {
-		if val, ok := subDevices[v.SubDeviceId]; ok {
-			channelConfig := make(map[string]interface{})
-			if err = json.Unmarshal([]byte(v.ChannelCfg), &channelConfig); err != nil {
-				continue
+		temp, err = s.getSubDevice(v.SubDeviceId)
+		if err != nil {
+			if s.logger != nil {
+				s.logger.Warn("[sdk] getSubDevice error:", err.Error())
 			}
-			deviceConfig := make(map[string]interface{})
-			if err = json.Unmarshal([]byte(v.SubDeviceCfg), &deviceConfig); err != nil {
-				continue
-			}
-			dev := &SubDeviceInfo{
-				Token:       val.TokenContent,
-				TokenStatus: TokenStatus(val.TokenStatus),
-				DeviceId:    val.DeviceId,
-				Ext:         deviceConfig,
-				ChannelCfg:  channelConfig,
-			}
-			response = append(response, dev)
+			continue
 		}
+		channelConfig := make(map[string]interface{})
+		if err = json.Unmarshal([]byte(v.ChannelCfg), &channelConfig); err != nil {
+			continue
+		}
+		deviceConfig := make(map[string]interface{})
+		if err = json.Unmarshal([]byte(v.SubDeviceCfg), &deviceConfig); err != nil {
+			continue
+		}
+		dev := &SubDeviceInfo{
+			Token:       temp.TokenContent,
+			TokenStatus: TokenStatus(temp.TokenStatus),
+			DeviceId:    temp.DeviceId,
+			Ext:         deviceConfig,
+			ChannelCfg:  channelConfig,
+		}
+		response = append(response, dev)
 	}
+	return response, err
+}
+func (s *session) getSubDevice(id string) (*device, error) {
+	var (
+		err      error
+		resp     *http.Response
+		content  []byte
+		response *device
+	)
+	response = &device{}
+	resp, err = s.metadataClient.Get(subDeviceRequest + id)
+	if err != nil {
+		return response, err
+	}
+	defer resp.Body.Close()
+	content, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return response, err
+	}
+	s.logger.Info("[sdk] getSubDevice ", string(content))
+	err = json.Unmarshal(content, response)
 	return response, err
 }
 func (s *session) getSubDevices() (map[string]device, error) {
@@ -318,7 +342,7 @@ func (s *session) getSubDevices() (map[string]device, error) {
 	if err != nil {
 		return response, err
 	}
-	s.logger.Info("[getSubDevices] ", string(content))
+	s.logger.Info("[sdk] getSubDevices ", string(content))
 	err = json.Unmarshal(content, &result)
 	if err != nil {
 		//s.logger.Error("[getSubDevices] Unmarshal err:", err.Error())
@@ -328,7 +352,7 @@ func (s *session) getSubDevices() (map[string]device, error) {
 		dev := device{}
 		err = json.Unmarshal([]byte(v), &dev)
 		if err != nil {
-			s.logger.Error("[getSubDevices] result Unmarshal err:", err.Error())
+			s.logger.Error("[sdk] getSubDevices result Unmarshal err:", err.Error())
 			return response, err
 		}
 		response[dev.DeviceId] = dev
@@ -377,7 +401,7 @@ func (s *session) getDriver() (string, error) {
 	result = &driverResult{}
 	err = json.Unmarshal(content, result)
 	if err != nil {
-		s.logger.Error("getDriver:", string(content), err.Error())
+		s.logger.Error("[sdk] getDriver:", string(content), err.Error())
 		return response, err
 	}
 	return result.DriverCfg, err
