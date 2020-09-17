@@ -22,10 +22,10 @@
  *
  * 阻塞接口
  *
- * ctx:          @ctx, 接口超时控制上下文
- * eventId:      @deviceType, 事件标识符.
- * params:       @Metadata, 属性数组.
- * err:			 @err 成功返回nil,  失败返回错误信息.
+ * ctx:         @ctx, 接口超时控制上下文
+ * eventId:     @deviceType, 事件标识符.
+ * params:      @Metadata, 属性数组.
+ * err:         @err 成功返回nil,  失败返回错误信息.
  *
  */
 func ReportDiscovery(ctx context.Context,deviceType string, meta Metadata) error
@@ -118,8 +118,8 @@ func ReportEdgeEvent(ctx context.Context,eventId string, params Metadata) error
  *
  * 设置子设备属性设置回调
  *
- * call:    	 @call, 子设备属性设置接口.
- * err:			 @err 成功返回nil,  失败返回错误信息.
+ * call:        @call, 子设备属性设置接口.
+ * err:         @err 成功返回nil,  失败返回错误信息.
  */
 func SetSetServiceCall(call OnSetServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
@@ -131,8 +131,8 @@ func SetSetServiceCall(call OnSetServiceCall) ServerOption {
  *
  * 设置子设备属性获取回调
  *
- * call:    	 @call, 子设备属性获取接口.
- * err:			 @err 成功返回nil,  失败返回错误信息.
+ * call:        @call, 子设备属性获取接口.
+ * err:         @err 成功返回nil,  失败返回错误信息.
  */
 func SetGetServiceCall(call OnGetServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
@@ -144,8 +144,8 @@ func SetGetServiceCall(call OnGetServiceCall) ServerOption {
  *
  * 设置子设备子设备服务调用接口
  *
- * call:    	 @call, 子设备服务调用接口.
- * err:			 @err 成功返回nil,  失败返回错误信息.
+ * call:        @call, 子设备服务调用接口.
+ * err:         @err 成功返回nil,  失败返回错误信息.
  */
 func SetEndServiceCall(call OnEndServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
@@ -157,8 +157,8 @@ func SetEndServiceCall(call OnEndServiceCall) ServerOption {
  *
  * 设置子设备自定义格式设备服务调用接口设置
  *
- * call:    	 @call, 子设备自定义格式设备服务调用接口.
- * err:			 @err 成功返回nil,  失败返回错误信息.
+ * call:        @call, 子设备自定义格式设备服务调用接口.
+ * err:         @err 成功返回nil,  失败返回错误信息.
  */
 func SetUserServiceCall(call OnUserServiceCall) ServerOption {
 	return newFuncServerOption(func(i *options) {
@@ -170,19 +170,19 @@ type Client interface {
     /*
      * 子设备上线
      *
-     * ctx:          @ctx, 接口超时控制上下文
+     * ctx:         @ctx, 接口超时控制上下文
      *
      * 阻塞接口.
-     * err:			 @err 成功返回nil,  失败返回错误信息.
+     * err:         @err 成功返回nil,  失败返回错误信息.
      */
 	Online(ctx context.Context) error                        //设备上线通知
     /*
      * 子设备下线
      *
-     * ctx:          @ctx, 接口超时控制上下文
+     * ctx:         @ctx, 接口超时控制上下文
      *
      * 阻塞接口.
-     * err:			 @err 成功返回nil,  失败返回错误信息.
+     * err:         @err 成功返回nil,  失败返回错误信息.
      */
 	Offline(ctx context.Context) error                       //设备下线通知
     /*
@@ -190,11 +190,11 @@ type Client interface {
      *
      * 上报属性, 可以上报一个, 也可以多个一起上报.
      *
-     * ctx:          @ctx, 接口超时控制上下文
-     * params:       @Metadata, 属性数组.
+     * ctx:         @ctx, 接口超时控制上下文
+     * params:      @Metadata, 属性数组.
      *
      * 阻塞接口.
-     * err:			 @err 成功返回nil,  失败返回错误信息.
+     * err:         @err 成功返回nil,  失败返回错误信息.
      */
 	ReportProperties(ctx context.Context,params Metadata) error    //上报属性
     /*
