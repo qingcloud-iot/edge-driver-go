@@ -10,7 +10,7 @@
 
 其中,数据转换和数据和命令处理部分为可选,一种是转换成Qingcloud　IoT物模型规范格式数据，另外一种是将数据直接透传不做解析，直接上传云端
 
-## 设备驱动分SDK接口
+## 设备驱动SDK接口
 调试（环境变量）
 - DRIVER_HUB_ADDRESS 默认为本地地址（tcp://127.0.0.1:1883），调试过程中可以修改,方便调试
 - DRIVER_META_ADDRESS 默认为本地地址（http://127.0.0.1:9611），调试过程中可以修改,方便调试
@@ -49,7 +49,17 @@ func GetConfig() (config []*SubDeviceInfo, err error)
  */
 func GetDriverInfo() (info string,err error)
 /*
- * 边端离线回调通知(异常)
+ * 获取模型详细信息（包括扩展描述）
+ *
+ * id:          @id 模型id.
+ *
+ * 阻塞接口.
+ * info:        @info 模型详细信息
+ * err:         @err 成功返回nil,  失败返回错误信息.
+ */
+func GetDeviceModel(id string) (info string, err error)
+/*
+ * 边端hub离线通知
  *
  * call:       @call, 离线回调.
  */

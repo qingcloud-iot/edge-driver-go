@@ -359,7 +359,7 @@ func (s *session) getSubDevices() (map[string]device, error) {
 	}
 	return response, err
 }
-func (s *session) getModel(id string) ([]byte, error) {
+func (s *session) getModel(id string) (string, error) {
 	var (
 		err      error
 		resp     *http.Response
