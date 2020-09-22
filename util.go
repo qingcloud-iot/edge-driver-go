@@ -16,8 +16,10 @@
 package edge_driver_go
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
+	"strings"
 )
 
 const (
@@ -26,16 +28,30 @@ const (
 )
 
 func parseToken(tokenString string) (string, string, error) {
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return "", nil
-	})
-	if token == nil || token.Claims == nil {
+	//token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	//	return "", nil
+	//})
+	//if token == nil || token.Claims == nil {
+	//	return "", "", errors.New("parse token fail")
+	//}
+	//payload := token.Claims.(jwt.MapClaims)
+	//if err := payload.Valid(); err != nil {
+	//	return "", "", err
+	//}
+
+	split := strings.Split(tokenString, ".")
+	if len(split) != 3 {
 		return "", "", errors.New("parse token fail")
 	}
-	payload := token.Claims.(jwt.MapClaims)
-	if err := payload.Valid(); err != nil {
+	data, err := base64.RawURLEncoding.DecodeString(split[1])
+	if err != nil {
 		return "", "", err
 	}
+	payload := make(map[string]interface{})
+	if err != nil {
+		return "", "", err
+	}
+	err = json.Unmarshal(data, &payload)
 	id, ok := payload[device_id].(string)
 	if !ok {
 		return "", "", errors.New("device id type error")
