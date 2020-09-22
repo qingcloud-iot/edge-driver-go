@@ -54,7 +54,7 @@ func GetDriverInfo() (info string, err error) {
 
 //get device thing model
 func GetDeviceModel(id string) (info string, err error) {
-	return getSessionIns().getModel()
+	return getSessionIns().getModel(id)
 }
 
 //register edge device service

@@ -364,7 +364,7 @@ func (s *session) getModel(id string) (string, error) {
 		err      error
 		resp     *http.Response
 		content  []byte
-		response []byte
+		response string
 	)
 	resp, err = s.metadataClient.Get(subDeviceRequest + id)
 	if err != nil {
@@ -378,7 +378,7 @@ func (s *session) getModel(id string) (string, error) {
 	s.logger.Info(string(content))
 	//todo need fix
 	err = json.Unmarshal(content, &response)
-	return content, err
+	return string(content), err
 }
 func (s *session) getDriver() (string, error) {
 	var (
