@@ -1,9 +1,2 @@
-# Folders
-_obj
-_test
-.vscode/*
-.idea/*
-Library/
-vendor/
-bin/
-*.tar.gz
+# Created by .ignore support plugin (hsz.mobi)
+.idea/
