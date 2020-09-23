@@ -70,13 +70,13 @@ func (s *session) init() {
 		//result     *edgeDevInfo
 		hubAddress string
 	)
-	if os.Getenv("ENV_EDGE_HUB_HOST") == "" || os.Getenv("ENV_EDGE_HUB_PORT") == "" {
+	if os.Getenv("EDGE_HUB_HOST") == "" || os.Getenv("EDGE_HUB_PORT") == "" {
 		hubAddress = hubBroker
 	} else {
-		hubAddress = fmt.Sprintf("tcp://%s:%s", os.Getenv("ENV_EDGE_HUB_HOST"), os.Getenv("ENV_EDGE_HUB_PORT"))
+		hubAddress = fmt.Sprintf("tcp://%s:%s", os.Getenv("EDGE_HUB_HOST"), os.Getenv("EDGE_HUB_PORT"))
 	}
 	if s.driverId == "" {
-		if os.Getenv("ENV_EDGE_APP_ID") == "" {
+		if os.Getenv("EDGE_APP_ID") == "" {
 			panic(errors.New("driver id is not set,sdk can't run!"))
 		} else {
 			s.driverId = os.Getenv("ENV_EDGE_APP_ID")
@@ -104,8 +104,8 @@ func (s *session) init() {
 	//		break
 	//	}
 	//}
-	s.deviceId = os.Getenv("ENV_EDGE_DEVICE_ID")
-	s.thingId = os.Getenv("ENV_EDGE_THING_ID")
+	s.deviceId = os.Getenv("EDGE_DEVICE_ID")
+	s.thingId = os.Getenv("EDGE_THING_ID")
 	if s.deviceId == "" || s.thingId == "" {
 		panic("edge device id or thing id is not set!")
 	}
@@ -142,9 +142,9 @@ func (s *session) init() {
 					s.configChange(t, i.Payload())
 				}
 			})
-			if s.logger != nil {
-				s.logger.Info("connect success")
-			}
+			//if s.logger != nil {
+			//	s.logger.Info("connect success")
+			//}
 		})
 	client := mqtt.NewClient(options)
 	s.connect(hubAddress, client) //reconnected
@@ -224,7 +224,7 @@ func (s *session) getEdgeInfo() (*edgeDevInfo, error) {
 		request  string
 	)
 	response = &edgeDevInfo{}
-	if val := os.Getenv("ENV_EDGE_META_ADDRESS"); val == "" {
+	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
 		request = fmt.Sprintf(edgeInfoRequest, metadataBroker)
 	} else {
 		request = fmt.Sprintf(edgeInfoRequest, val)
@@ -269,7 +269,7 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 		request string
 	)
 	//temp = make(map[string]string)
-	if val := os.Getenv("ENV_EDGE_META_ADDRESS"); val == "" {
+	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
 		request = fmt.Sprintf(edgeDriverRequest, metadataBroker)
 	} else {
 		request = fmt.Sprintf(edgeDriverRequest, val)
@@ -327,7 +327,7 @@ func (s *session) getSubDevice(id string) (*device, error) {
 		request  string
 	)
 	response = &device{}
-	if val := os.Getenv("ENV_EDGE_META_ADDRESS"); val == "" {
+	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
 		request = fmt.Sprintf(subDeviceRequest, metadataBroker)
 	} else {
 		request = fmt.Sprintf(subDeviceRequest, val)
@@ -341,56 +341,23 @@ func (s *session) getSubDevice(id string) (*device, error) {
 	if err != nil {
 		return response, err
 	}
-	//s.logger.Info("[sdk] getSubDevice ", string(content))
+	s.logger.Info("[sdk] getSubDevice ", string(content))
 	err = json.Unmarshal(content, response)
 	return response, err
 }
-
-//func (s *session) getSubDevices() (map[string]device, error) {
-//	var (
-//		err      error
-//		resp     *http.Response
-//		content  []byte
-//		response map[string]device
-//		result   map[string]string
-//	)
-//	result = make(map[string]string)
-//	response = make(map[string]device)
-//	resp, err = s.metadataClient.Get(subDeviceRequest)
-//	if err != nil {
-//		return response, err
-//	}
-//	defer resp.Body.Close()
-//	content, err = ioutil.ReadAll(resp.Body)
-//	if err != nil {
-//		return response, err
-//	}
-//	s.logger.Info("[sdk] getSubDevices ", string(content))
-//	err = json.Unmarshal(content, &result)
-//	if err != nil {
-//		//s.logger.Error("[getSubDevices] Unmarshal err:", err.Error())
-//		return response, err
-//	}
-//	for _, v := range result {
-//		dev := device{}
-//		err = json.Unmarshal([]byte(v), &dev)
-//		if err != nil {
-//			s.logger.Error("[sdk] getSubDevices result Unmarshal err:", err.Error())
-//			return response, err
-//		}
-//		response[dev.DeviceId] = dev
-//	}
-//	return response, err
-//}
-func (s *session) getModel(id string) (string, error) {
+func (s *session) getModel(id string) (*ThingModel, error) {
 	var (
 		err      error
 		resp     *http.Response
 		content  []byte
-		response string
+		response *ThingModel
+		temp     device
 		request  string
 	)
-	if val := os.Getenv("ENV_EDGE_META_ADDRESS"); val == "" {
+	response = &ThingModel{
+		Properties: make([]*Property, 0),
+	}
+	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
 		request = fmt.Sprintf(subDeviceRequest, metadataBroker)
 	} else {
 		request = fmt.Sprintf(subDeviceRequest, val)
@@ -406,8 +373,28 @@ func (s *session) getModel(id string) (string, error) {
 	}
 	s.logger.Info(string(content))
 	//todo need fix
-	//err = json.Unmarshal(content, &response)
-	return string(content), err
+	err = json.Unmarshal(content, &temp)
+	if err != nil {
+		s.logger.Error("json unmarshal error", string(content))
+		return response, err
+	}
+	for _, v := range temp.Properties {
+		p := &Property{
+			Name:       v.Name,
+			Identifier: v.Identifier,
+			Type:       v.Type,
+			Define:     make(map[string]interface{}),
+			Ext:        make(map[string]interface{}),
+		}
+		if err = json.Unmarshal(v.Define, &p.Define); err != nil {
+			continue
+		}
+		if err = json.Unmarshal(v.Ext, &p.Ext); err != nil {
+			continue
+		}
+		response.Properties = append(response.Properties, p)
+	}
+	return response, err
 }
 func (s *session) getDriver() (string, error) {
 	var (

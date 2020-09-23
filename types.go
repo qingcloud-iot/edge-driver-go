@@ -156,13 +156,31 @@ type SubDeviceInfo struct {
 	Ext         map[string]interface{} `json:"ext"`          //device custom config
 	ChannelCfg  map[string]interface{} `json:"channel_cfg"`  //sub device config, example
 }
+type Property struct {
+	Name       string                 `json:"name"`
+	Identifier string                 `json:"identifier"`
+	Type       int                    `json:"type"`
+	Define     map[string]interface{} `json:"define"`
+	Ext        map[string]interface{} `json:"ext"`
+}
+type ThingModel struct {
+	Properties []*Property `json:"property"`
+}
+type propertyEx struct {
+	Name       string `json:"name"`
+	Identifier string `json:"identifier"`
+	Type       int    `json:"type"`
+	Define     []byte `json:"define"`
+	Ext        []byte `json:"ext"`
+}
 
 //sub device info
 type device struct {
-	DeviceId     string `json:"deviceId"`
-	TokenContent string `json:"tokenContent"`
-	TokenStatus  string `json:"tokenStatus"`
-	ThingId      string `json:"thingId"`
+	DeviceId     string        `json:"deviceId"`
+	TokenContent string        `json:"tokenContent"`
+	TokenStatus  string        `json:"tokenStatus"`
+	ThingId      string        `json:"thingId"`
+	Properties   []*propertyEx `json:"property"`
 }
 
 //driver info

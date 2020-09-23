@@ -53,13 +53,13 @@ func GetDriverInfo() (info string,err error)
 /*
  * 获取模型详细信息（包括扩展描述）
  *
- * id:          @id 模型id.
+ * id:          @id 设备id.
  *
  * 阻塞接口.
  * info:        @info 模型详细信息
  * err:         @err 成功返回nil,  失败返回错误信息.
  */
-func GetDeviceModel(id string) (info string, err error)
+func GetDeviceModel(id string) (info *ThingModel, err error)
 /*
  * 边端hub离线通知
  *

@@ -88,7 +88,7 @@ func (e *endClient) init() error {
 		if err != nil {
 			return err
 		}
-		err = getSessionIns().subscribe(fmt.Sprintf(deviceService, e.config.DeviceId(), e.config.ThingId(), "+"), e.endCall)
+		err = getSessionIns().subscribe(fmt.Sprintf(deviceService, e.config.ThingId(), e.config.DeviceId(), "+"), e.endCall)
 		if err != nil {
 			return err
 		}
@@ -209,7 +209,7 @@ func (e *endClient) endCall(topic string, payload []byte) {
 		Data: make(Metadata),
 	}
 	if e.endServiceCall != nil {
-		if reply, err = e.endServiceCall(methodName, req.Params); err != nil {
+		if reply, err = e.endServiceCall(methodName, req.Params); err != nil || reply == nil {
 			resp.Code = RpcFail
 		} else {
 			resp.Code = reply.Code
@@ -224,11 +224,11 @@ func (e *endClient) endCall(topic string, payload []byte) {
 		}
 		if err = getSessionIns().publish(topic+"_reply", buf); err != nil {
 			if e.logger != nil {
-				e.logger.Error(fmt.Sprintf("requestServiceReply err:%s", err.Error()))
+				e.logger.Error(fmt.Sprintf("[sdk] requestServiceReply err:%s", err.Error()))
 			}
 		} else {
 			if e.logger != nil {
-				e.logger.Error(fmt.Sprintf("requestServiceReply  topic:%s,data:%s", topic+"_reply", string(buf)))
+				e.logger.Info(fmt.Sprintf("[sdk] requestServiceReply  topic:%s,data:%s", topic+"_reply", string(buf)))
 			}
 		}
 	} else {
@@ -258,11 +258,11 @@ func (e *endClient) userCall(topic string, payload []byte) {
 		} else {
 			if err = getSessionIns().publish(topic+"_reply", data); err != nil {
 				if e.logger != nil {
-					e.logger.Error(fmt.Sprintf("userCall err:%s", err.Error()))
+					e.logger.Error(fmt.Sprintf("[sdk] userCall err:%s", err.Error()))
 				}
 			} else {
 				if e.logger != nil {
-					e.logger.Error(fmt.Sprintf("userCall  topic:%s,data:%s", topic+"_reply", string(data)))
+					e.logger.Info(fmt.Sprintf("[sdk] userCall  topic:%s,data:%s", topic+"_reply", string(data)))
 				}
 			}
 		}

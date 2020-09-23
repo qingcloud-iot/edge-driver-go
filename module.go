@@ -52,8 +52,8 @@ func GetDriverInfo() (info string, err error) {
 	return getSessionIns().getDriver()
 }
 
-//get device thing model
-func GetDeviceModel(id string) (info string, err error) {
+//get device thing model by device id
+func GetDeviceModel(id string) (info *ThingModel, err error) {
 	return getSessionIns().getModel(id)
 }
 

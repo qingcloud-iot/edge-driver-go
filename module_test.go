@@ -23,6 +23,9 @@ import (
 	"time"
 )
 
+func TestMain(m *testing.M) {
+
+}
 func TestRegisterEdgeService(t *testing.T) {
 	err := RegisterEdgeService("xxxx", func(args Metadata) (reply *Reply, e error) {
 		return
@@ -44,6 +47,11 @@ func TestGetConfig(t *testing.T) {
 }
 func TestGetDriverInfo(t *testing.T) {
 	res, err := GetDriverInfo()
+	assert.Nil(t, err)
+	t.Log(res)
+}
+func TestGetDeviceModel(t *testing.T) {
+	res, err := GetDeviceModel("iotd-0adf702f-8c1c-489e-bde0-01788ac674c3")
 	assert.Nil(t, err)
 	t.Log(res)
 }
