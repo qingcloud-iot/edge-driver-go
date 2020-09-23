@@ -70,16 +70,16 @@ func (s *session) init() {
 		result     *edgeDevInfo
 		hubAddress string
 	)
-	if os.Getenv("DRIVER_HUB_ADDRESS") == "" {
+	if os.Getenv("EDGE_HUB_HOST") == "" || os.Getenv("EDGE_HUB_PORT") == "" {
 		hubAddress = hubBroker
 	} else {
-		hubAddress = os.Getenv("DRIVER_HUB_ADDRESS")
+		hubAddress = fmt.Sprintf("tcp://%s:%s", os.Getenv("EDGE_HUB_HOST"), os.Getenv("EDGE_HUB_PORT"))
 	}
 	if s.driverId == "" {
-		if os.Getenv("DRIVER_ID") == "" {
+		if os.Getenv("ENV_EDGE_APP_ID") == "" {
 			panic(errors.New("driver id is not set,sdk can't run"))
 		} else {
-			s.driverId = os.Getenv("DRIVER_ID")
+			s.driverId = os.Getenv("ENV_EDGE_APP_ID")
 		}
 	}
 	s.metadataClient = &http.Client{
@@ -94,18 +94,18 @@ func (s *session) init() {
 			IdleConnTimeout:     time.Duration(IdleConnTimeout) * time.Second,
 		},
 	}
-	result, err = s.getEdgeInfo()
-	for err != nil {
-		result, err = s.getEdgeInfo()
-		if err != nil {
-			s.logger.Warn("sdk get edge info fail,", err.Error())
-			time.Sleep(3 * time.Second)
-		} else {
-			break
-		}
-	}
-	s.deviceId = result.Id
-	s.thingId = result.ThingId
+	//result, err = s.getEdgeInfo()
+	//for err != nil {
+	//	result, err = s.getEdgeInfo()
+	//	if err != nil {
+	//		s.logger.Warn("sdk get edge info fail,", err.Error())
+	//		time.Sleep(3 * time.Second)
+	//	} else {
+	//		break
+	//	}
+	//}
+	s.deviceId = os.Getenv("EDGE_DEVICE_ID")
+	s.thingId = os.Getenv("EDGE_THING_ID")
 	options := mqtt.NewClientOptions()
 	options.AddBroker(hubAddress).
 		SetClientID("edge.driver." + s.driverId).
