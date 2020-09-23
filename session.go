@@ -18,6 +18,7 @@ package edge_driver_go
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"io/ioutil"
 	"net"
@@ -125,7 +126,7 @@ func (s *session) init() {
 		}).
 		SetOnConnectHandler(func(client mqtt.Client) {
 			atomic.StoreUint32(&s.status, hubConnected)
-			client.Subscribe(configChange, byte(0), func(client mqtt.Client, i mqtt.Message) {
+			client.Subscribe(fmt.Sprintf(configChange, s.driverId), byte(0), func(client mqtt.Client, i mqtt.Message) {
 				var msg message
 				t, err := msg.parseConfigType(i.Topic())
 				if err != nil {
@@ -319,7 +320,7 @@ func (s *session) getSubDevice(id string) (*device, error) {
 	if err != nil {
 		return response, err
 	}
-	s.logger.Info("[sdk] getSubDevice ", string(content))
+	//s.logger.Info("[sdk] getSubDevice ", string(content))
 	err = json.Unmarshal(content, response)
 	return response, err
 }

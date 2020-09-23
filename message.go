@@ -37,7 +37,7 @@ const (
 	userDeviceService          = "/sys/%s/%s/user/down/+/call"
 	deviceEventsReport         = "/sys/%s/%s/thing/event/%s/post"
 	deviceInfoReport           = "/sys/%s/%s/thing/deviceinfo/post"
-	configChange               = "/iot/internal/notify/+"
+	configChange               = "/iot/internal/%s/notify"
 	deviceDiscoveryReport      = "/sys/%s/device/discovery/post"
 )
 
