@@ -406,7 +406,7 @@ func (s *session) getModel(id string) (string, error) {
 	}
 	s.logger.Info(string(content))
 	//todo need fix
-	err = json.Unmarshal(content, &response)
+	//err = json.Unmarshal(content, &response)
 	return string(content), err
 }
 func (s *session) getDriver() (string, error) {
