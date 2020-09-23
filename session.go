@@ -395,7 +395,7 @@ func (s *session) getModel(id string) (string, error) {
 	} else {
 		request = fmt.Sprintf(subDeviceRequest, val)
 	}
-	resp, err = s.metadataClient.Get(subDeviceRequest + id)
+	resp, err = s.metadataClient.Get(request + id)
 	if err != nil {
 		return response, err
 	}
