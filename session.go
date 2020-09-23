@@ -79,7 +79,7 @@ func (s *session) init() {
 		if os.Getenv("EDGE_APP_ID") == "" {
 			panic(errors.New("driver id is not set,sdk can't run!"))
 		} else {
-			s.driverId = os.Getenv("ENV_EDGE_APP_ID")
+			s.driverId = os.Getenv("EDGE_APP_ID")
 		}
 	}
 	s.metadataClient = &http.Client{
