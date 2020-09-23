@@ -48,11 +48,7 @@ func TestRequestDriver(t *testing.T) {
 	assert.Nil(t, err)
 	fmt.Println(res)
 }
-func TestGetSubDevice(t *testing.T) {
-	res, err := getSessionIns().getSubDevices()
-	assert.Nil(t, err)
-	fmt.Println(res)
-}
+
 func TestGetModel(t *testing.T) {
 	res, err := getSessionIns().getModel("iotd-4f2b7f67-e98e-4a69-a453-07cfafcc3363")
 	assert.Nil(t, err)

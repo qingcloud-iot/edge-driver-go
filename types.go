@@ -30,9 +30,9 @@ const (
 	messageVersion    = "v0.0.1"
 	hubBroker         = "tcp://127.0.0.1:1883"
 	metadataBroker    = "http://127.0.0.1:9611"
-	edgeInfoRequest   = metadataBroker + "/internal/data/edge_info/"   //request edge info
-	edgeDriverRequest = metadataBroker + "/internal/data/edge_driver/" //request driver info
-	subDeviceRequest  = metadataBroker + "/internal/data/child_device/"
+	edgeInfoRequest   = "%s/internal/data/edgeInfo/"   //request edge info
+	edgeDriverRequest = "%s/internal/data/edgeDriver/" //request driver info
+	subDeviceRequest  = "%s/internal/data/childDevice/"
 	userThingId       = "iott-end-user-system"
 )
 const (

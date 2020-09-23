@@ -12,10 +12,10 @@
 
 ## 设备驱动SDK接口
 调试（环境变量）
-- EDGE_DEVICE_ID 边设备id
-- EDGE_THING_ID 边设备模型id
-- EDGE_HUB_HOST,EDGE_HUB_PORT 默认为本地地址（tcp://127.0.0.1:1883），调试过程中可以修改,方便调试
-- DRIVER_META_ADDRESS 默认为本地地址（http://127.0.0.1:9611），调试过程中可以修改,方便调试
+- ENV_EDGE_DEVICE_ID 边设备id
+- ENV_EDGE_THING_ID 边设备模型id
+- ENV_EDGE_HUB_HOST,EDGE_HUB_PORT 默认为本地地址（tcp://127.0.0.1:1883），调试过程中可以修改,方便调试
+- ENV_EDGE_META_ADDRESS 默认为本地地址（http://127.0.0.1:9611），调试过程中可以修改,方便调试
 
 ### 驱动配置管理接口
 ```go
