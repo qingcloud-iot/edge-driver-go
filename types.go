@@ -26,6 +26,33 @@ const (
 	Disable TokenStatus = "disable" //token disable
 )
 
+type DefineType int
+
+func (d DefineType) String() string {
+	switch d {
+	case 1:
+		return "INT32"
+	case 2:
+		return "FLOAT"
+	case 3:
+		return "DOUBLE"
+	case 4:
+		return "STRING"
+	case 5:
+		return "ENUM"
+	case 6:
+		return "ARRAY"
+	case 7:
+		return "BOOL"
+	case 8:
+		return "STRUCT"
+	case 9:
+		return "DATE"
+	default:
+		return ""
+	}
+}
+
 const (
 	messageVersion    = "v0.0.1"
 	hubBroker         = "tcp://127.0.0.1:1883"
@@ -159,7 +186,7 @@ type SubDeviceInfo struct {
 type Property struct {
 	Name       string                 `json:"name"`
 	Identifier string                 `json:"identifier"`
-	Type       int                    `json:"type"`
+	Type       string                 `json:"type"`
 	Define     map[string]interface{} `json:"define"`
 	Ext        map[string]interface{} `json:"ext"`
 }

@@ -287,10 +287,6 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 		s.logger.Error("[sdk] getConfig Unmarshal:", err.Error())
 		return response, err
 	}
-	//if subDevices, err = s.getSubDevices(); err != nil {
-	//	s.logger.Error("getSubDevices Unmarshal:", err.Error())
-	//	return response, err
-	//}
 	for _, v := range result.Channels {
 		temp, err = s.getSubDevice(v.SubDeviceId)
 		if err != nil {
@@ -382,15 +378,17 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 		p := &Property{
 			Name:       v.Name,
 			Identifier: v.Identifier,
-			Type:       v.Type,
+			Type:       DefineType(v.Type).String(),
 			Define:     make(map[string]interface{}),
 			Ext:        make(map[string]interface{}),
 		}
 		if err = json.Unmarshal(v.Define, &p.Define); err != nil {
 			continue
 		}
-		if err = json.Unmarshal(v.Ext, &p.Ext); err != nil {
-			continue
+		if v.Ext != nil {
+			if err = json.Unmarshal(v.Ext, &p.Ext); err != nil {
+				continue
+			}
 		}
 		response.Properties = append(response.Properties, p)
 	}
