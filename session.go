@@ -111,9 +111,9 @@ func (s *session) init() {
 	}
 	options := mqtt.NewClientOptions()
 	options.AddBroker(hubAddress).
-		SetClientID("edge.driver." + s.driverId).
-		SetUsername("edge.driver." + s.driverId).
-		SetPassword("edge.driver." + s.driverId).
+		SetClientID("edge.go." + s.driverId).
+		SetUsername("edge.go." + s.driverId).
+		SetPassword("edge.go." + s.driverId).
 		SetCleanSession(true).
 		SetAutoReconnect(true).
 		SetKeepAlive(30 * time.Second).
@@ -310,6 +310,9 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 			Ext:         deviceConfig,
 			ChannelCfg:  channelConfig,
 		}
+		if s.logger != nil {
+			s.logger.Info(fmt.Sprintf("[sdk] getSubDevice deviceId:%s,ext:%+v,cfg:%+v", dev.DeviceId, dev.Ext, dev.ChannelCfg))
+		}
 		response = append(response, dev)
 	}
 	return response, err
@@ -337,7 +340,6 @@ func (s *session) getSubDevice(id string) (*device, error) {
 	if err != nil {
 		return response, err
 	}
-	s.logger.Info("[sdk] getSubDevice ", string(content))
 	err = json.Unmarshal(content, response)
 	return response, err
 }
