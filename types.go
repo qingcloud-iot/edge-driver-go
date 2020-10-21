@@ -112,11 +112,11 @@ type property struct {
 	Time  int64       `json:"time"`
 }
 type messageMeta struct {
-	DeviceId  string   `json:"entityId"`
-	ThingId   string   `json:"modelId"`
-	SourceId  []string `json:"sourceId,omitempty"`
-	EpochTime int64    `json:"epochTime,omitempty"`
-	Tags      string   `json:"tags,omitempty"`
+	DeviceId  string                 `json:"entityId"`
+	ThingId   string                 `json:"modelId"`
+	SourceId  []string               `json:"sourceId,omitempty"`
+	EpochTime int64                  `json:"epochTime,omitempty"`
+	Tags      map[string]interface{} `json:"tags,omitempty"`
 }
 
 //device property
