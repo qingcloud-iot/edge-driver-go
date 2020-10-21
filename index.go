@@ -35,12 +35,20 @@ type ConfigChangeFunc func(t string, config []byte)
 
 //sub device interface
 type Client interface {
-	Online(ctx context.Context) error                                       //report device online to cloud
-	Offline(ctx context.Context) error                                      //report device offline to cloud
-	ReportProperties(ctx context.Context, params Metadata) error            //report device property to cloud
-	ReportEvent(ctx context.Context, eventId string, params Metadata) error //report device event to cloud
-	ReportUserMessage(ctx context.Context, data []byte) error               //report user device message to cloud
-	ReportDeviceInfo(ctx context.Context, params Metadata) error            //report device info to cloud
+	//report device online to cloud
+	Online(ctx context.Context) error
+	//report device offline to cloud
+	Offline(ctx context.Context) error
+	//report device property to cloud
+	ReportProperties(ctx context.Context, params Metadata) error
+	//report device property to cloud with tags
+	ReportPropertiesWithTags(ctx context.Context, params Metadata, tags Metadata) error
+	//report device event to cloud
+	ReportEvent(ctx context.Context, eventId string, params Metadata) error
+	//report user device message to cloud
+	ReportUserMessage(ctx context.Context, data []byte) error
+	//report device info to cloud
+	ReportDeviceInfo(ctx context.Context, params Metadata) error
 }
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)

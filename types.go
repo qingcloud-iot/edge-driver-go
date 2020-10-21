@@ -116,6 +116,7 @@ type messageMeta struct {
 	ThingId   string   `json:"modelId"`
 	SourceId  []string `json:"sourceId,omitempty"`
 	EpochTime int64    `json:"epochTime,omitempty"`
+	Tags      string   `json:"tags,omitempty"`
 }
 
 //device property
