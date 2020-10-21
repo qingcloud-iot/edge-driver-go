@@ -200,6 +200,19 @@ type Client interface {
      */
 	ReportProperties(ctx context.Context,params Metadata) error    //上报属性
     /*
+     * 子设备上报属性, 设备具有的属性的设备能力描述在设备物模型规定.
+     *
+     * 上报属性, 可以上报一个, 也可以多个一起上报.
+     *
+     * ctx:         @ctx, 接口超时控制上下文
+     * params:      @Metadata, 属性数组.
+     * tags:        @tags, 属性tag.
+     *
+     * 阻塞接口.
+     * err:         @err 成功返回nil,  失败返回错误信息.
+     */
+	ReportPropertiesWithTags(ctx context.Context,params Metadata,tags Metadata) error    //上报属性
+    /*
      * 子设备上报事件, 设备具有的事件的设备能力描述在设备物模型规定.
      *
      * 上报事件, 单个事件上报.
