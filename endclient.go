@@ -329,6 +329,31 @@ func (e *endClient) Offline(ctx context.Context) error {
 		return rpcTimeout
 	}
 }
+
+//report device property to cloud with tags and time
+func (e *endClient) ReportPropertiesWithTagsEx(ctx context.Context, params MetadataMsg, tags Metadata) error {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+			//thingId string
+			//err error
+		)
+		//if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+		//	return err
+		//}
+		topic = msg.buildPropertyTopic(e.config.DeviceId(), e.config.ThingId())
+		data = msg.buildPropertyMsgWithTagsEx(e.config.DeviceId(), e.config.ThingId(), params, tags)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return rpcTimeout
+	}
+}
 func (e *endClient) ReportPropertiesWithTags(ctx context.Context, params Metadata, tags Metadata) error {
 	done := wait(func() error {
 		var (

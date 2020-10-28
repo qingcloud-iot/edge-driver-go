@@ -304,6 +304,18 @@ func main() {
 					if err != nil {
 						fmt.Println(err)
 					}
+                    //消息体带上tag
+					err = client.ReportPropertiesWithTags(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()},edge_driver_go.Metadata{"sn": "1234567890"})
+                    if err != nil {
+                        fmt.Println(err)
+                    }
+                    //消息体带上tag
+                    msg := NewMetadata()
+                    msg.Add("temp",rand.Float32(),1603866709111)
+					err = client.ReportPropertiesWithTagsEx(context.Background(), msg,edge_driver_go.Metadata{"sn": "1234567890"})
+                    if err != nil {
+                        fmt.Println(err)
+                    }
                     //云端定义端设备事件模型（temperatureEvent）
 					err = client.ReportEvent(context.Background(), "temperatureEvent", edge_driver_go.Metadata{"temperature": rand.Float32(), "reason": true})
 					if err != nil {

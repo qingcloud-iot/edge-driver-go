@@ -43,6 +43,8 @@ type Client interface {
 	ReportProperties(ctx context.Context, params Metadata) error
 	//report device property to cloud with tags
 	ReportPropertiesWithTags(ctx context.Context, params Metadata, tags Metadata) error
+	//report device property to cloud with tags and time
+	ReportPropertiesWithTagsEx(ctx context.Context, params MetadataMsg, tags Metadata) error
 	//report device event to cloud
 	ReportEvent(ctx context.Context, eventId string, params Metadata) error
 	//report user device message to cloud
@@ -52,6 +54,12 @@ type Client interface {
 }
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)
+
+type MetadataMsg interface {
+	Add(key string, value interface{}, time int64)
+	Del(key string)
+	Data() Metadata
+}
 
 //describe device info
 type config interface {
