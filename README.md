@@ -309,7 +309,7 @@ func main() {
                     if err != nil {
                         fmt.Println(err)
                     }
-                    //消息体带上tag
+                    //消息体带上tag和自定义时间戳（毫秒）
                     msg := NewMetadata()
                     msg.Add("temp",rand.Float32(),1603866709111)
 					err = client.ReportPropertiesWithTagsEx(context.Background(), msg,edge_driver_go.Metadata{"sn": "1234567890"})
