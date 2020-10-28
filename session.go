@@ -16,6 +16,7 @@
 package edge_driver_go
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -403,9 +404,15 @@ func (s *session) getDriver() (string, error) {
 		content  []byte
 		result   *driverResult
 		response string
+		request  string
 	)
 	//response = Metadata{}
-	resp, err = s.metadataClient.Get(edgeDriverRequest + s.driverId)
+	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
+		request = fmt.Sprintf(edgeDriverRequest, metadataBroker)
+	} else {
+		request = fmt.Sprintf(edgeDriverRequest, val)
+	}
+	resp, err = s.metadataClient.Get(request + s.driverId)
 	if err != nil {
 		return response, err
 	}
@@ -421,6 +428,49 @@ func (s *session) getDriver() (string, error) {
 		return response, err
 	}
 	return result.DriverCfg, err
+}
+func (s *session) setValue(key string, value []byte) error {
+	var (
+		err     error
+		resp    *http.Response
+		request string
+	)
+	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
+		request = fmt.Sprintf(storeRequest, metadataBroker)
+	} else {
+		request = fmt.Sprintf(storeRequest, val)
+	}
+	//response = Metadata{}
+	resp, err = s.metadataClient.Post(request+key, "application/json", bytes.NewBuffer(value))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
+}
+func (s *session) getValue(key string) ([]byte, error) {
+	var (
+		err     error
+		resp    *http.Response
+		request string
+		content []byte
+	)
+	//response = Metadata{}
+	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
+		request = fmt.Sprintf(storeRequest, metadataBroker)
+	} else {
+		request = fmt.Sprintf(storeRequest, val)
+	}
+	resp, err = s.metadataClient.Get(request + key)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer resp.Body.Close()
+	content, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return content, err
+	}
+	return content, nil
 }
 func (s *session) disconnect() {
 	if s.client != nil {

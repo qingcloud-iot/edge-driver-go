@@ -61,6 +61,7 @@ const (
 	edgeDriverRequest = "%s/internal/data/edgeDriver/" //request driver info
 	subDeviceRequest  = "%s/internal/data/childDevice/"
 	userThingId       = "iott-end-user-system"
+	storeRequest      = "%s/public/data/"
 )
 const (
 	EdgeDeviceChanged   = "edgeDeviceChanged"   //edge device config change
