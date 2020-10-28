@@ -114,10 +114,11 @@ func (m message) buildHeartbeatMsg(deviceId, thingId, status string) []byte {
 func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byte {
 	id := uuid.NewV4().String()
 	params := make(map[string]interface{})
+	t := time.Now().UnixNano() / 1e6
 	for k, _ := range meta {
 		property := &property{
 			Value: meta[k],
-			Time:  time.Now().UnixNano() / 1e6,
+			Time:  t,
 		}
 		params[k] = property
 	}
@@ -129,7 +130,7 @@ func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byt
 			DeviceId:  deviceId,
 			ThingId:   thingId,
 			SourceId:  []string{deviceId},
-			EpochTime: time.Now().UnixNano() / 1e6,
+			EpochTime: t,
 		},
 		Params: params,
 	}
@@ -141,11 +142,11 @@ func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byt
 func (m message) buildPropertyMsgWithTags(deviceId, thingId string, meta Metadata, tags Metadata) []byte {
 	id := uuid.NewV4().String()
 	params := make(map[string]interface{})
-	time := time.Now().UnixNano() / 1e6
+	t := time.Now().UnixNano() / 1e6
 	for k, _ := range meta {
 		property := &property{
 			Value: meta[k],
-			Time:  time,
+			Time:  t,
 		}
 		params[k] = property
 	}
@@ -157,7 +158,7 @@ func (m message) buildPropertyMsgWithTags(deviceId, thingId string, meta Metadat
 			DeviceId:  deviceId,
 			ThingId:   thingId,
 			SourceId:  []string{deviceId},
-			EpochTime: time.Now().UnixNano() / 1e6,
+			EpochTime: t,
 			Tags:      tags,
 		},
 		Params: params,
