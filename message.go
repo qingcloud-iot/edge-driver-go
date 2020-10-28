@@ -168,7 +168,7 @@ func (m message) buildPropertyMsgWithTags(deviceId, thingId string, meta Metadat
 //build device property data
 func (m message) buildPropertyMsgWithTagsEx(deviceId, thingId string, meta MetadataMsg, tags Metadata) []byte {
 	id := uuid.NewV4().String()
-	params := make(map[string]interface{})
+	//params := make(map[string]interface{})
 	//for k, _ := range meta {
 	//	property := &property{
 	//		Value: meta[k],
