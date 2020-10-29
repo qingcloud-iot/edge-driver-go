@@ -284,6 +284,7 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 	if err != nil {
 		return response, err
 	}
+	//s.logger.Info(string(content))
 	if err = json.Unmarshal(content, &result); err != nil {
 		s.logger.Error("[sdk] getConfig Unmarshal:", err.Error())
 		return response, err
@@ -300,14 +301,12 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 		if v.ChannelCfg != "" {
 			if err = json.Unmarshal([]byte(v.ChannelCfg), &channelConfig); err != nil {
 				s.logger.Warn("[sdk] channel cfg decode error,", err.Error())
-				continue
 			}
 		}
 		deviceConfig := make(map[string]interface{})
 		if v.SubDeviceCfg != "" {
 			if err = json.Unmarshal([]byte(v.SubDeviceCfg), &deviceConfig); err != nil {
 				s.logger.Warn("[sdk] sub device cfg decode error,", err.Error())
-				continue
 			}
 		}
 		dev := &SubDeviceInfo{
