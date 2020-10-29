@@ -313,7 +313,7 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 		dev := &SubDeviceInfo{
 			Token:       temp.TokenContent,
 			TokenStatus: TokenStatus(temp.TokenStatus),
-			DeviceId:    temp.DeviceId,
+			DeviceId:    v.SubDeviceId,
 			Ext:         deviceConfig,
 			ChannelCfg:  channelConfig,
 		}
