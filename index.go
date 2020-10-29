@@ -17,7 +17,12 @@ package edge_driver_go
 
 import "context"
 
+type ValueData struct {
+	Value interface{} `json:"value"`
+	Time  int64       `json:"time"`
+}
 type Metadata map[string]interface{}
+type MetadataMsg map[string]ValueData
 
 //edge service call
 type OnEdgeServiceCall func(args Metadata) (*Reply, error)
@@ -54,12 +59,6 @@ type Client interface {
 }
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)
-
-type MetadataMsg interface {
-	Add(key string, value interface{}, time int64)
-	Del(key string)
-	Data() Metadata
-}
 
 //describe device info
 type config interface {

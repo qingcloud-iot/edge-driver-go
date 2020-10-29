@@ -170,14 +170,14 @@ func (m message) buildPropertyMsgWithTags(deviceId, thingId string, meta Metadat
 //build device property data
 func (m message) buildPropertyMsgWithTagsEx(deviceId, thingId string, meta MetadataMsg, tags Metadata) []byte {
 	id := uuid.NewV4().String()
-	//params := make(map[string]interface{})
-	//for k, _ := range meta {
-	//	property := &property{
-	//		Value: meta[k],
-	//		Time:  time.Now().UnixNano() / 1e6,
-	//	}
-	//	params[k] = property
-	//}
+	params := make(map[string]interface{})
+	for k, _ := range meta {
+		property := &property{
+			Value: meta[k].Value,
+			Time:  meta[k].Time,
+		}
+		params[k] = property
+	}
 	message := &thingPropertyMsg{
 		Id:      id,
 		Version: messageVersion,
@@ -189,7 +189,7 @@ func (m message) buildPropertyMsgWithTagsEx(deviceId, thingId string, meta Metad
 			EpochTime: time.Now().UnixNano() / 1e6,
 			Tags:      tags,
 		},
-		Params: meta.Data(),
+		Params: params,
 	}
 	buf, _ := json.Marshal(message)
 	return buf

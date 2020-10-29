@@ -66,8 +66,11 @@ func main() {
 					//	fmt.Println(err)
 					//}
 					//消息体带上tag和自定义时间戳（毫秒）
-					msg := edge_driver_go.NewMetadata()
-					msg.Add("temp", rand.Float32(), 1603866709111)
+					msg := edge_driver_go.MetadataMsg{}
+					msg["temp"] = edge_driver_go.ValueData{
+						Value: rand.Float32(),
+						Time:  1603866709111,
+					}
 					err = client.ReportPropertiesWithTagsEx(context.Background(), msg, edge_driver_go.Metadata{"sn": "1234567890"})
 					if err != nil {
 						fmt.Println(err)
