@@ -297,12 +297,18 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 			continue
 		}
 		channelConfig := make(map[string]interface{})
-		if err = json.Unmarshal([]byte(v.ChannelCfg), &channelConfig); err != nil {
-			continue
+		if v.ChannelCfg != "" {
+			if err = json.Unmarshal([]byte(v.ChannelCfg), &channelConfig); err != nil {
+				s.logger.Warn("channel cfg decode error,", err.Error())
+				continue
+			}
 		}
 		deviceConfig := make(map[string]interface{})
-		if err = json.Unmarshal([]byte(v.SubDeviceCfg), &deviceConfig); err != nil {
-			continue
+		if v.SubDeviceCfg != "" {
+			if err = json.Unmarshal([]byte(v.SubDeviceCfg), &deviceConfig); err != nil {
+				s.logger.Warn("sub device cfg decode error,", err.Error())
+				continue
+			}
 		}
 		dev := &SubDeviceInfo{
 			Token:       temp.TokenContent,
@@ -429,6 +435,8 @@ func (s *session) getDriver() (string, error) {
 	}
 	return result.DriverCfg, err
 }
+
+// support json
 func (s *session) setValue(key string, value []byte) error {
 	var (
 		err     error
