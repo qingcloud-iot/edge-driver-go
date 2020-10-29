@@ -73,6 +73,27 @@ func SetConnectLost(call ConnectLost)
  */
 func SetConfigChange(call ConfigChangeFunc) 
 
+/*
+ * 键值存储
+ *
+ * key:       @key, kv键.
+ * value:     @value, kv值.
+ */
+func SetValue(key string, value []byte) error 
+
+/*
+ * 键值存储
+ *
+ * key:      @key, kv键.
+ *
+ * 阻塞接口.
+ * data:     @data 键值
+ * err:      @err 成功返回nil,  失败返回错误信息.
+ */
+ */
+func GetValue(key string) (data []byte,err error)
+
+
 ```
 ### 边设备模块接口
 ```go
