@@ -299,14 +299,14 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 		channelConfig := make(map[string]interface{})
 		if v.ChannelCfg != "" {
 			if err = json.Unmarshal([]byte(v.ChannelCfg), &channelConfig); err != nil {
-				s.logger.Warn("channel cfg decode error,", err.Error())
+				s.logger.Warn("[sdk] channel cfg decode error,", err.Error())
 				continue
 			}
 		}
 		deviceConfig := make(map[string]interface{})
 		if v.SubDeviceCfg != "" {
 			if err = json.Unmarshal([]byte(v.SubDeviceCfg), &deviceConfig); err != nil {
-				s.logger.Warn("sub device cfg decode error,", err.Error())
+				s.logger.Warn("[sdk] sub device cfg decode error,", err.Error())
 				continue
 			}
 		}
