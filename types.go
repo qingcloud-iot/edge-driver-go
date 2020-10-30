@@ -22,7 +22,7 @@ import (
 type TokenStatus string
 
 const (
-	Enable  TokenStatus = "enable"  //token enable
+	Enable  TokenStatus = "enabled" //token enable
 	Disable TokenStatus = "disable" //token disable
 )
 
