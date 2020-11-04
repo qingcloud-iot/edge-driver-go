@@ -12,6 +12,7 @@
 
 ## 设备驱动SDK接口
 调试（环境变量）
+- EDGE_APP_ID 驱动id
 - EDGE_DEVICE_ID 边设备id
 - EDGE_THING_ID 边设备模型id
 - EDGE_HUB_HOST,EDGE_HUB_PORT 默认为本地地址（tcp://127.0.0.1:1883），调试过程中可以修改,方便调试

@@ -193,7 +193,7 @@ type Property struct {
 	Ext        map[string]interface{} `json:"ext"`
 }
 type ThingModel struct {
-	Properties []*Property `json:"property"`
+	Properties map[string]*Property `json:"property"`
 }
 type propertyEx struct {
 	Name       string `json:"name"`

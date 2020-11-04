@@ -337,12 +337,11 @@ func (e *endClient) ReportPropertiesWithTagsEx(ctx context.Context, params Metad
 			topic string
 			msg   message
 			data  []byte
-			//thingId string
-			//err error
+			err   error
 		)
-		//if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
-		//	return err
-		//}
+		if params, err = e.validate.validatePropertiesEx(ctx, e.config.DeviceId(), params); err != nil {
+			return err
+		}
 		topic = msg.buildPropertyTopic(e.config.DeviceId(), e.config.ThingId())
 		data = msg.buildPropertyMsgWithTagsEx(e.config.DeviceId(), e.config.ThingId(), params, tags)
 		return getSessionIns().publish(topic, data)
@@ -363,7 +362,7 @@ func (e *endClient) ReportPropertiesWithTags(ctx context.Context, params Metadat
 			//thingId string
 			err error
 		)
-		if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+		if params, err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
 			return err
 		}
 		topic = msg.buildPropertyTopic(e.config.DeviceId(), e.config.ThingId())
@@ -386,7 +385,7 @@ func (e *endClient) ReportProperties(ctx context.Context, params Metadata) error
 			//thingId string
 			err error
 		)
-		if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+		if params, err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
 			return err
 		}
 		topic = msg.buildPropertyTopic(e.config.DeviceId(), e.config.ThingId())
@@ -409,7 +408,7 @@ func (e *endClient) ReportEvent(ctx context.Context, eventId string, params Meta
 			//thingId string
 			err error
 		)
-		if err = e.validate.validateProperties(ctx, e.config.DeviceId(), params); err != nil {
+		if err = e.validate.validateEvent(ctx, e.config.DeviceId(), eventId, params); err != nil {
 			return err
 		}
 		topic = msg.buildEventTopic(e.config.DeviceId(), e.config.ThingId(), eventId)

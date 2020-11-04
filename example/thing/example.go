@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+func init() {
+}
 func main() {
 	subs, err := edge_driver_go.GetConfig()
 	if err != nil {

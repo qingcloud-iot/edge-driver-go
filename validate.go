@@ -20,7 +20,8 @@ import "context"
 //todo need fix
 //validate device thing model
 type validate interface {
-	validateProperties(ctx context.Context, deviceId string, metadata Metadata) error
+	validateProperties(ctx context.Context, deviceId string, metadata Metadata) (Metadata, error)
+	validatePropertiesEx(ctx context.Context, deviceId string, metadata MetadataMsg) (MetadataMsg, error)
 	validateEvent(ctx context.Context, deviceId string, eventName string, metadata Metadata) error
 	validateServiceInput(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error
 	validateServiceOutput(ctx context.Context, deviceId string, serviceName string, metadata Metadata) error
@@ -34,8 +35,39 @@ func newDataValidate() validate {
 	return &dataValidate{}
 }
 
-func (v *dataValidate) validateProperties(ctx context.Context, deviceId string, metadata Metadata) error {
-	return nil
+func (v *dataValidate) validateProperties(ctx context.Context, deviceId string, metadata Metadata) (Metadata, error) {
+	var (
+		thing *ThingModel
+		resp  Metadata
+		err   error
+	)
+	if thing, err = getSessionIns().getModel(deviceId); err != nil {
+		return resp, err
+	}
+	for k, _ := range metadata {
+		if _, ok := thing.Properties[k]; !ok {
+			continue
+		}
+		resp[k] = metadata[k]
+	}
+	return resp, nil
+}
+func (v *dataValidate) validatePropertiesEx(ctx context.Context, deviceId string, metadata MetadataMsg) (MetadataMsg, error) {
+	var (
+		thing *ThingModel
+		resp  MetadataMsg
+		err   error
+	)
+	if thing, err = getSessionIns().getModel(deviceId); err != nil {
+		return resp, err
+	}
+	for k, _ := range metadata {
+		if _, ok := thing.Properties[k]; !ok {
+			continue
+		}
+		resp[k] = metadata[k]
+	}
+	return resp, nil
 }
 func (v *dataValidate) validateEvent(ctx context.Context, deviceId string, eventName string, metadata Metadata) error {
 	return nil

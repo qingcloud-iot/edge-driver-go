@@ -50,25 +50,19 @@ func getSessionIns() *session {
 
 //module api
 type session struct {
-	//lock           sync.RWMutex
-	//subDevices     map[string]Client //sub device
 	client         mqtt.Client //hub client
 	metadataClient *http.Client
 	driverId       string
 	deviceId       string
 	thingId        string
-	//topics         []string
-	status       uint32           //0:not connected, 1:connected
-	connectLost  ConnectLost      //connect lost callback
-	configChange ConfigChangeFunc //config change
-	logger       Logger
-	//messageArrived messageArrived			//message callback
+	status         uint32           //0:not connected, 1:connected
+	connectLost    ConnectLost      //connect lost callback
+	configChange   ConfigChangeFunc //config change
+	logger         Logger
 }
 
 func (s *session) init() {
 	var (
-		//err        error
-		//result     *edgeDevInfo
 		hubAddress string
 	)
 	if os.Getenv("EDGE_HUB_HOST") == "" || os.Getenv("EDGE_HUB_PORT") == "" {
@@ -95,16 +89,6 @@ func (s *session) init() {
 			IdleConnTimeout:     time.Duration(IdleConnTimeout) * time.Second,
 		},
 	}
-	//result, err = s.getEdgeInfo()
-	//for err != nil {
-	//	result, err = s.getEdgeInfo()
-	//	if err != nil {
-	//		s.logger.Warn("sdk get edge info fail,", err.Error())
-	//		time.Sleep(3 * time.Second)
-	//	} else {
-	//		break
-	//	}
-	//}
 	s.deviceId = os.Getenv("EDGE_DEVICE_ID")
 	s.thingId = os.Getenv("EDGE_THING_ID")
 	if s.deviceId == "" || s.thingId == "" {
@@ -143,9 +127,6 @@ func (s *session) init() {
 					s.configChange(t, i.Payload())
 				}
 			})
-			//if s.logger != nil {
-			//	s.logger.Info("connect success")
-			//}
 		})
 	client := mqtt.NewClient(options)
 	s.connect(hubAddress, client) //reconnected
@@ -359,7 +340,7 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 		request  string
 	)
 	response = &ThingModel{
-		Properties: make([]*Property, 0),
+		Properties: make(map[string]*Property, 0),
 	}
 	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
 		request = fmt.Sprintf(subDeviceRequest, metadataBroker)
@@ -375,7 +356,7 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 	if err != nil {
 		return response, err
 	}
-	s.logger.Info(string(content))
+	//s.logger.Info(string(content))
 	//todo need fix
 	err = json.Unmarshal(content, &temp)
 	if err != nil {
@@ -390,15 +371,17 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 			Define:     make(map[string]interface{}),
 			Ext:        make(map[string]interface{}),
 		}
-		if err = json.Unmarshal(v.Define, &p.Define); err != nil {
-			continue
+		if v.Define != nil {
+			if err = json.Unmarshal(v.Define, &p.Define); err != nil {
+				continue
+			}
 		}
 		if v.Ext != nil {
 			if err = json.Unmarshal(v.Ext, &p.Ext); err != nil {
 				continue
 			}
 		}
-		response.Properties = append(response.Properties, p)
+		response.Properties[v.Identifier] = p
 	}
 	return response, err
 }
