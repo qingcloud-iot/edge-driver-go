@@ -41,6 +41,7 @@ func (v *dataValidate) validateProperties(ctx context.Context, deviceId string, 
 		resp  Metadata
 		err   error
 	)
+	resp = make(Metadata, 0)
 	if thing, err = getSessionIns().getModel(deviceId); err != nil {
 		return resp, err
 	}
@@ -58,6 +59,7 @@ func (v *dataValidate) validatePropertiesEx(ctx context.Context, deviceId string
 		resp  MetadataMsg
 		err   error
 	)
+	resp = make(MetadataMsg, 0)
 	if thing, err = getSessionIns().getModel(deviceId); err != nil {
 		return resp, err
 	}
