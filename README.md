@@ -72,7 +72,10 @@ func SetConnectLost(call ConnectLost)
  * call:       @call, 离线回调.
  */
 func SetConfigChange(call ConfigChangeFunc) 
+```
 
+### 存储模块接口
+```go
 /*
  * 键值存储
  *
@@ -93,8 +96,8 @@ func SetValue(key string, value []byte) error
  */
 func GetValue(key string) (data []byte,err error)
 
-
 ```
+
 ### 边设备模块接口
 ```go
 
