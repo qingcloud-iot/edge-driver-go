@@ -168,7 +168,7 @@ type edgeDevInfo struct {
 	ThingId string `json:"thingId"`
 }
 type driverResult struct {
-	Version   string    `json:"version"`
+	Version   string    `json:"driverVersion"`
 	DriverId  string    `json:"driverId"`
 	DriverCfg string    `json:"driverCfg"`
 	Channels  []channel `json:"channels"`
