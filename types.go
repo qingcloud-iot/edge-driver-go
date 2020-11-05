@@ -89,9 +89,10 @@ const (
 	offline = "offline" //offline
 )
 const (
-	devicePropertyType   = "thing.property.post"
-	deviceDeviceInfoType = "thing.deviceinfo.post"
-	deviceEventType      = "thing.event.%s.post"
+	devicePropertyType        = "thing.property.post"
+	deviceDeviceDiscoveryType = "thing.discovery.post"
+	deviceDeviceInfoType      = "thing.deviceinfo.post"
+	deviceEventType           = "thing.event.%s.post"
 )
 
 var (
@@ -167,6 +168,7 @@ type edgeDevInfo struct {
 	ThingId string `json:"thingId"`
 }
 type driverResult struct {
+	Version   string    `json:"version"`
 	DriverId  string    `json:"driverId"`
 	DriverCfg string    `json:"driverCfg"`
 	Channels  []channel `json:"channels"`

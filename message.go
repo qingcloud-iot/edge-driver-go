@@ -217,12 +217,10 @@ func (m message) buildDiscoveryMsg(deviceId, thingId string, meta Metadata) []by
 //build device info data
 func (m message) buildDeviceInfoMsg(deviceId, thingId string, meta Metadata) []byte {
 	id := uuid.NewV4().String()
-	meta["deviceId"] = deviceId
-	meta["thingId"] = thingId
 	message := &thingPropertyMsg{
 		Id:      id,
 		Version: messageVersion,
-		Type:    deviceDeviceInfoType,
+		Type:    deviceDeviceDiscoveryType,
 		Metadata: &messageMeta{
 			DeviceId:  deviceId,
 			ThingId:   thingId,

@@ -53,6 +53,7 @@ type session struct {
 	client         mqtt.Client //hub client
 	metadataClient *http.Client
 	driverId       string
+	version        string
 	deviceId       string
 	thingId        string
 	status         uint32           //0:not connected, 1:connected
@@ -131,6 +132,22 @@ func (s *session) init() {
 	client := mqtt.NewClient(options)
 	s.connect(hubAddress, client) //reconnected
 	s.client = client
+}
+func (s *session) getDriverVersion() string {
+	if s.version == "" {
+		resp, err := s.getDriverInfo()
+		if err != nil {
+			return ""
+		} else {
+			s.version = resp.Version
+			return s.version
+		}
+	} else {
+		return s.version
+	}
+}
+func (s *session) getDriverId() string {
+	return s.driverId
 }
 func (s *session) getDeviceId() string {
 	return s.deviceId
@@ -386,13 +403,20 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 	return response, err
 }
 func (s *session) getDriver() (string, error) {
+	resp, err := s.getDriverInfo()
+	if err != nil {
+		return "", err
+	} else {
+		return resp.DriverCfg, nil
+	}
+}
+func (s *session) getDriverInfo() (*driverResult, error) {
 	var (
-		err      error
-		resp     *http.Response
-		content  []byte
-		result   *driverResult
-		response string
-		request  string
+		err     error
+		resp    *http.Response
+		content []byte
+		result  *driverResult
+		request string
 	)
 	//response = Metadata{}
 	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
@@ -402,20 +426,20 @@ func (s *session) getDriver() (string, error) {
 	}
 	resp, err = s.metadataClient.Get(request + s.driverId)
 	if err != nil {
-		return response, err
+		return result, err
 	}
 	defer resp.Body.Close()
 	content, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return response, err
+		return result, err
 	}
 	result = &driverResult{}
 	err = json.Unmarshal(content, result)
 	if err != nil {
 		s.logger.Error("[sdk] getDriver:", string(content), err.Error())
-		return response, err
+		return result, err
 	}
-	return result.DriverCfg, err
+	return result, nil
 }
 
 // support json

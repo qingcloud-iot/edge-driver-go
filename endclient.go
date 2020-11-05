@@ -429,6 +429,9 @@ func (e *endClient) ReportDeviceInfo(ctx context.Context, params Metadata) error
 			msg   message
 			data  []byte
 		)
+		params["driver_id"] = getSessionIns().getDriverId()
+		params["device_id"] = getSessionIns().getDeviceId()
+		params["version"] = getSessionIns().getDriverVersion()
 		topic = msg.buildDeviceInfoTopic(e.config.DeviceId(), e.config.ThingId())
 		data = msg.buildDeviceInfoMsg(e.config.DeviceId(), e.config.ThingId(), params)
 		return getSessionIns().publish(topic, data)
