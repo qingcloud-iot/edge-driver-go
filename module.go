@@ -29,6 +29,9 @@ func ReportDiscovery(ctx context.Context, deviceType string, meta Metadata) erro
 			msg   message
 			data  []byte
 		)
+		meta["driver_id"] = getSessionIns().getDriverId()
+		meta["device_id"] = getSessionIns().getDeviceId()
+		meta["version"] = getSessionIns().getDriverVersion()
 		topic = msg.buildDiscoveryTopic(deviceType)
 		data = msg.buildDeviceInfoMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), meta)
 		return getSessionIns().publish(topic, data)
