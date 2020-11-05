@@ -32,7 +32,7 @@ const (
 	deviceGetProperty          = "/sys/%s/%s/thing/property/base/get"
 	deviceService              = "/sys/%s/%s/thing/service/%s/call"
 	deviceStatusReport         = "/as/mqtt/status/%s/%s"
-	devicePropertiesReport     = "/sys/%s/%s/thing/property/platform/post"
+	devicePropertiesReport     = "/sys/%s/%s/thing/property/base/post"
 	userDevicePropertiesReport = "/sys/%s/%s/user/msg"
 	userDeviceService          = "/sys/%s/%s/user/down/+/call"
 	deviceEventsReport         = "/sys/%s/%s/thing/event/%s/post"
