@@ -104,10 +104,12 @@ var (
 
 //device status report
 type deviceStatus struct {
-	DeviceId string `json:"device_id"`
-	ThingId  string `json:"thing_id"`
-	Status   string `json:"status"`
-	Time     int64  `json:"time"`
+	DeviceId   string `json:"device_id"`
+	ThingId    string `json:"thing_id"`
+	Status     string `json:"status"`
+	Time       int64  `json:"time"`
+	NodeName   string `json:"node_name"`
+	RemoteAddr string `json:"remote_addr"`
 }
 type property struct {
 	Value interface{} `json:"value"`
