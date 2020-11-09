@@ -5,6 +5,10 @@
 ## edge 设备接入　SDK　GO版本
 边缘端sdk是为边缘端设备接入提供基础能力，所有接入到edge的设备都是需要通过驱动进行接入
 
+## edge 使用流程
+
+![image](https://github.com/qingcloud-iot/edge-driver-go/blob/dev/docs/api.png)
+
 ## 设备驱动分为三个部分（用户实现）
 - 连接管理　设备和edge设备建立连接，我们不限制建立通信连接的协议，可根据客户业务灵活选择
 - 数据转换（上行）  设备接入驱动需要将设备数据转换成符合Qingcloud　IoT物模型规范的数据格式（可选）
