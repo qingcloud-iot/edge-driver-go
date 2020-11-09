@@ -115,7 +115,7 @@ func RegisterEdgeService(serviceId string,call OnEdgeServiceCall)
 /*
  * 边端上报属性, 设备具有的属性在设备能力描述在设备物模型规定.
  *
- * 上报属性, 可以上报一个, 也可以多个一起上报.
+ * 上报属性, 可以上报一个, 也可以多个一起上报（属性时间调用接口取当前时间）.
  *
  * ctx:          @ctx, 接口超时控制上下文
  * params:       @Metadata, 属性数组.
@@ -215,7 +215,7 @@ type Client interface {
     /*
      * 子设备上报属性, 设备具有的属性的设备能力描述在设备物模型规定.
      *
-     * 上报属性, 可以上报一个, 也可以多个一起上报.
+     * 上报属性, 可以上报一个, 也可以多个一起上报（属性时间调用接口取当前时间）.
      *
      * ctx:         @ctx, 接口超时控制上下文
      * params:      @Metadata, 属性数组.
@@ -227,7 +227,7 @@ type Client interface {
     /*
      * 子设备上报属性, 设备具有的属性的设备能力描述在设备物模型规定.
      *
-     * 上报属性, 可以上报一个, 也可以多个一起上报.
+     * 上报属性, 可以上报一个, 也可以多个一起上报（消息带上用户tags）.
      *
      * ctx:         @ctx, 接口超时控制上下文
      * params:      @Metadata, 属性数组.
@@ -237,6 +237,19 @@ type Client interface {
      * err:         @err 成功返回nil,  失败返回错误信息.
      */
 	ReportPropertiesWithTags(ctx context.Context,params Metadata,tags Metadata) error    //上报属性
+ /*
+     * 子设备上报属性, 设备具有的属性的设备能力描述在设备物模型规定.
+     *
+     * 上报属性, 可以上报一个, 也可以多个一起上报（消息带上用户tags）.
+     *
+     * ctx:         @ctx, 接口超时控制上下文
+     * params:      @MetadataMsg, 属性数组(单个属性时间由用户传入).
+     * tags:        @tags, 属性tag.
+     *
+     * 阻塞接口.
+     * err:         @err 成功返回nil,  失败返回错误信息.
+     */
+	ReportPropertiesWithTagsEx(ctx context.Context, params MetadataMsg, tags Metadata) error    //上报属性
     /*
      * 子设备上报事件, 设备具有的事件的设备能力描述在设备物模型规定.
      *
@@ -318,30 +331,30 @@ func main() {
 					return
 				}
 				for {
-                    //驱动上报子设备上线
+                                //驱动上报子设备上线
 					err := client.Online(context.Background())
 					if err != nil {
 						fmt.Println(err)
 					}
 					time.Sleep(2 * time.Second)
-                    //云端定义端设备属性模型（temp）
+                                //云端定义端设备属性模型（temp）
 					err = client.ReportProperties(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()})
 					if err != nil {
 						fmt.Println(err)
 					}
-                    //消息体带上tag
+                                //消息体带上tag
 					err = client.ReportPropertiesWithTags(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()},edge_driver_go.Metadata{"sn": "1234567890"})
                     if err != nil {
                         fmt.Println(err)
                     }
-                    //消息体带上tag和自定义时间戳（毫秒）
+                                //消息体带上tag和自定义时间戳（毫秒）
                     msg := NewMetadata()
                     msg.Add("temp",rand.Float32(),1603866709111)
 					err = client.ReportPropertiesWithTagsEx(context.Background(), msg,edge_driver_go.Metadata{"sn": "1234567890"})
                     if err != nil {
                         fmt.Println(err)
                     }
-                    //云端定义端设备事件模型（temperatureEvent）
+                                //云端定义端设备事件模型（temperatureEvent）
 					err = client.ReportEvent(context.Background(), "temperatureEvent", edge_driver_go.Metadata{"temperature": rand.Float32(), "reason": true})
 					if err != nil {
 						fmt.Println(err)
