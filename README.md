@@ -1,5 +1,7 @@
 # edge-driver-go
 
+![image](https://https://github.com/qingcloud-iot/edge-driver-go/docs/sdk.png)
+
 ## edge 设备接入　SDK　GO版本
 边缘端sdk是为边缘端设备接入提供基础能力，所有接入到edge的设备都是需要通过驱动进行接入
 
