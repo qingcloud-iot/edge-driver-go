@@ -33,7 +33,7 @@ func ReportDiscovery(ctx context.Context, deviceType string, meta Metadata) erro
 		meta["device_id"] = getSessionIns().getDeviceId()
 		meta["version"] = getSessionIns().getDriverVersion()
 		topic = msg.buildDiscoveryTopic(deviceType)
-		data = msg.buildDeviceInfoMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), meta)
+		data = msg.buildDiscoveryMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), meta)
 		return getSessionIns().publish(topic, data)
 	})
 	select {

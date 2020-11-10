@@ -58,15 +58,15 @@ func main() {
 						fmt.Println(err)
 					}
 					time.Sleep(2 * time.Second)
-					//err = client.ReportProperties(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()})
-					//if err != nil {
-					//	fmt.Println(err)
-					//}
-					////消息体带上tag
-					//err = client.ReportPropertiesWithTags(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()}, edge_driver_go.Metadata{"sn": "1234567890"})
-					//if err != nil {
-					//	fmt.Println(err)
-					//}
+					err = client.ReportProperties(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()})
+					if err != nil {
+						fmt.Println(err)
+					}
+					//消息体带上tag
+					err = client.ReportPropertiesWithTags(context.Background(), edge_driver_go.Metadata{"temp": rand.Float32()}, edge_driver_go.Metadata{"sn": "1234567890"})
+					if err != nil {
+						fmt.Println(err)
+					}
 					//消息体带上tag和自定义时间戳（毫秒）
 					msg := edge_driver_go.MetadataMsg{}
 					msg["temp"] = edge_driver_go.ValueData{
@@ -77,10 +77,10 @@ func main() {
 					if err != nil {
 						fmt.Println(err)
 					}
-					//err = client.ReportEvent(context.Background(), "temperatureEvent", edge_driver_go.Metadata{"temperature": rand.Float32(), "reason": true})
-					//if err != nil {
-					//	fmt.Println(err)
-					//}
+					err = client.ReportEvent(context.Background(), "temperatureEvent", edge_driver_go.Metadata{"temperature": rand.Float32(), "reason": true})
+					if err != nil {
+						fmt.Println(err)
+					}
 					time.Sleep(2 * time.Second)
 				}
 			}(v.Token)

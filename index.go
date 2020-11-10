@@ -55,7 +55,7 @@ type Client interface {
 	//report user device message to cloud
 	ReportUserMessage(ctx context.Context, data []byte) error
 	//report device info to cloud
-	ReportDeviceInfo(ctx context.Context, params Metadata) error
+	ReportDeviceInfo(ctx context.Context, params *DeviceMsg) error
 }
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)

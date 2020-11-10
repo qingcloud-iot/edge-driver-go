@@ -422,7 +422,7 @@ func (e *endClient) ReportEvent(ctx context.Context, eventId string, params Meta
 		return rpcTimeout
 	}
 }
-func (e *endClient) ReportDeviceInfo(ctx context.Context, params Metadata) error {
+func (e *endClient) ReportDeviceInfo(ctx context.Context, params *DeviceMsg) error {
 	done := wait(func() error {
 		var (
 			topic string

@@ -199,6 +199,20 @@ type Property struct {
 type ThingModel struct {
 	Properties map[string]*Property `json:"property"`
 }
+
+//device info
+type DeviceMsg struct {
+	Sn   string                 `json:"sn"`
+	Time int64                  `json:"time"`
+	Meta map[string]interface{} `json:"meta"`
+}
+type deviceMsg struct {
+	DeviceId string                 `json:"deviceId"`
+	ThingId  string                 `json:"thingId"`
+	Sn       string                 `json:"sn"`
+	Time     int64                  `json:"time"`
+	Meta     map[string]interface{} `json:"meta"`
+}
 type propertyEx struct {
 	Name       string `json:"name"`
 	Identifier string `json:"identifier"`

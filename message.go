@@ -217,21 +217,16 @@ func (m message) buildDiscoveryMsg(deviceId, thingId string, meta Metadata) []by
 }
 
 //build device info data
-func (m message) buildDeviceInfoMsg(deviceId, thingId string, meta Metadata) []byte {
-	id := uuid.NewV4().String()
-	message := &thingPropertyMsg{
-		Id:      id,
-		Version: messageVersion,
-		Type:    deviceDeviceDiscoveryType,
-		Metadata: &messageMeta{
-			DeviceId:  deviceId,
-			ThingId:   thingId,
-			SourceId:  []string{deviceId},
-			EpochTime: time.Now().UnixNano() / 1e6,
-		},
-		Params: meta,
+func (m message) buildDeviceInfoMsg(deviceId, thingId string, param *DeviceMsg) []byte {
+	//id := uuid.NewV4().String()
+	data := deviceMsg{
+		DeviceId: deviceId,
+		ThingId:  thingId,
+		Sn:       param.Sn,
+		Time:     param.Time,
+		Meta:     param.Meta,
 	}
-	buf, _ := json.Marshal(message)
+	buf, _ := json.Marshal(data)
 	return buf
 }
 
