@@ -307,12 +307,19 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 				s.logger.Warn("[sdk] sub device cfg decode error,", err.Error())
 			}
 		}
+		connectConfig := make(map[string]interface{})
+		if temp.ConnectInfo != "" {
+			if err = json.Unmarshal([]byte(temp.ConnectInfo), &connectConfig); err != nil {
+				s.logger.Warn("[sdk] sub device connect info decode error,", err.Error())
+			}
+		}
 		dev := &SubDeviceInfo{
 			Token:       temp.TokenContent,
 			TokenStatus: TokenStatus(temp.TokenStatus),
 			DeviceId:    v.SubDeviceId,
 			Ext:         deviceConfig,
 			ChannelCfg:  channelConfig,
+			ConnectInfo: connectConfig,
 		}
 		if s.logger != nil {
 			s.logger.Info(fmt.Sprintf("[sdk] getSubDevice deviceId:%s,ext:%+v,cfg:%+v", dev.DeviceId, dev.Ext, dev.ChannelCfg))

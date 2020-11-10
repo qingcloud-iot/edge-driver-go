@@ -188,6 +188,7 @@ type SubDeviceInfo struct {
 	DeviceId    string                 `json:"device_id"`    //device id
 	Ext         map[string]interface{} `json:"ext"`          //device custom config
 	ChannelCfg  map[string]interface{} `json:"channel_cfg"`  //sub device config, example
+	ConnectInfo map[string]interface{} `json:"connect_info"` //sub connect info
 }
 type Property struct {
 	Name       string                 `json:"name"`
@@ -227,6 +228,7 @@ type device struct {
 	TokenContent string        `json:"tokenContent"`
 	TokenStatus  string        `json:"tokenStatus"`
 	ThingId      string        `json:"thingId"`
+	ConnectInfo  string        `json:"extendInfo"`
 	Properties   []*propertyEx `json:"property"`
 }
 
