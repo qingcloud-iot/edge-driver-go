@@ -224,12 +224,12 @@ type propertyEx struct {
 
 //sub device info
 type device struct {
-	DeviceId     string        `json:"deviceId"`
-	TokenContent string        `json:"tokenContent"`
-	TokenStatus  string        `json:"tokenStatus"`
-	ThingId      string        `json:"thingId"`
-	ConnectInfo  string        `json:"extendInfo"`
-	Properties   []*propertyEx `json:"property"`
+	DeviceId     string                 `json:"deviceId"`
+	TokenContent string                 `json:"tokenContent"`
+	TokenStatus  string                 `json:"tokenStatus"`
+	ThingId      string                 `json:"thingId"`
+	ConnectInfo  map[string]interface{} `json:"extendInfo"`
+	Properties   []*propertyEx          `json:"property"`
 }
 
 //driver info
