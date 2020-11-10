@@ -101,12 +101,12 @@ func (m message) buildUserPropertyTopic(deviceId, thingId string) string {
 // build device status struct
 func (m message) buildHeartbeatMsg(deviceId, thingId, status string) []byte {
 	data := &deviceStatus{
-		DeviceId:   deviceId,
-		ThingId:    thingId,
-		Status:     status,
-		NodeName:   getSessionIns().getDriverId() + getSessionIns().getDriverVersion(),
-		RemoteAddr: getSessionIns().getDeviceId(),
-		Time:       time.Now().UnixNano() / 1e6,
+		DeviceId: deviceId,
+		ThingId:  thingId,
+		Status:   status,
+		//NodeName:   getSessionIns().getDriverId() + getSessionIns().getDriverVersion(),
+		//RemoteAddr: getSessionIns().getDeviceId(),
+		Time: time.Now().UnixNano() / 1e6,
 	}
 	buf, _ := json.Marshal(data)
 	return buf
