@@ -109,9 +109,7 @@ func GetValue(key string) (data []byte,err error)
  * data:     @data 消息（自定义）
  * err:      @err 成功返回nil,  失败返回错误信息.
  */
-func BroadcastReport(data []byte) error {
-	return getSessionIns().publish(broadcastTopic, data)
-}
+func BroadcastReport(data []byte) error
 
 /*
  * 订阅广播消息
@@ -120,9 +118,7 @@ func BroadcastReport(data []byte) error {
  * 阻塞接口.
  * call:     @call 广播消息回调
  */
-func SetBroadcastCall(call NotifyMessage) {
-	getSessionIns().setBroadcast(call)
-}
+func SetBroadcastCall(call NotifyMessage)
 
 ```
 
