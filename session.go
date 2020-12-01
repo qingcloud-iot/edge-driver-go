@@ -50,16 +50,17 @@ func getSessionIns() *session {
 
 //module api
 type session struct {
-	client         mqtt.Client //hub client
-	metadataClient *http.Client
-	driverId       string
-	version        string
-	deviceId       string
-	thingId        string
-	status         uint32           //0:not connected, 1:connected
-	connectLost    ConnectLost      //connect lost callback
-	configChange   ConfigChangeFunc //config change
-	logger         Logger
+	client           mqtt.Client //hub client
+	metadataClient   *http.Client
+	driverId         string
+	version          string
+	deviceId         string
+	thingId          string
+	status           uint32           //0:not connected, 1:connected
+	connectLostCall  ConnectLost      //connect lost callback
+	configChangeCall ConfigChangeFunc //config change
+	notifyCall       NotifyMessage    //broadcast message
+	logger           Logger
 }
 
 func (s *session) init() {
@@ -106,8 +107,8 @@ func (s *session) init() {
 		SetConnectionLostHandler(func(client mqtt.Client, err error) {
 			//heartbeat lost
 			atomic.StoreUint32(&s.status, hubNotConnected)
-			if s.connectLost != nil {
-				s.connectLost(err)
+			if s.connectLostCall != nil {
+				s.connectLostCall(err)
 			}
 			if s.logger != nil {
 				s.logger.Info("connect lost")
@@ -124,8 +125,13 @@ func (s *session) init() {
 					}
 					return
 				}
-				if s.configChange != nil {
-					s.configChange(t, i.Payload())
+				if s.configChangeCall != nil {
+					s.configChangeCall(t, i.Payload())
+				}
+			})
+			client.Subscribe(broadcastTopic, byte(0), func(client mqtt.Client, i mqtt.Message) {
+				if s.notifyCall != nil {
+					s.notifyCall(i.Payload())
 				}
 			})
 		})
@@ -198,12 +204,14 @@ func (s *session) subscribes(topics []string, call messageArrived) error {
 	return nil
 }
 func (s *session) setConnectLost(connectLost ConnectLost) {
-	s.connectLost = connectLost
+	s.connectLostCall = connectLost
 }
 func (s *session) setConfigChange(configChange ConfigChangeFunc) {
-	s.configChange = configChange
+	s.configChangeCall = configChange
 }
-
+func (s *session) setBroadcast(call NotifyMessage) {
+	s.notifyCall = call
+}
 func (s *session) publish(topic string, payload []byte) error {
 	if atomic.LoadUint32(&s.status) == 0 {
 		return notConnected
@@ -497,7 +505,7 @@ func (s *session) disconnect() {
 	if s.client != nil {
 		s.client.Disconnect(250)
 		atomic.StoreUint32(&s.status, hubConnected)
-		s.connectLost = nil
+		s.connectLostCall = nil
 	}
 	if s.metadataClient != nil {
 		s.metadataClient.CloseIdleConnections()

@@ -153,6 +153,16 @@ func ReportEdgeEvent(ctx context.Context, eventId string, params Metadata) (err 
 	}
 }
 
+//broadcast message to drivers
+func BroadcastReport(data []byte) error {
+	return getSessionIns().publish(broadcastTopic, data)
+}
+
+//set broadcast call
+func SetBroadcastCall(call NotifyMessage) {
+	getSessionIns().setBroadcast(call)
+}
+
 //set lost call
 func SetConnectLost(call ConnectLost) {
 	getSessionIns().setConnectLost(call)

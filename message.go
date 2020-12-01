@@ -38,6 +38,7 @@ const (
 	deviceEventsReport         = "/sys/%s/%s/thing/event/%s/post"
 	deviceInfoReport           = "/sys/%s/%s/thing/deviceinfo/post"
 	configChange               = "/iot/internal/%s/notify"
+	broadcastTopic             = "/iot/edge/broadcast/notify"
 	deviceDiscoveryReport      = "/sys/%s/device/discovery/post"
 )
 

@@ -59,6 +59,7 @@ type Client interface {
 }
 type ConnectLost func(err error)
 type messageArrived func(topic string, payload []byte)
+type NotifyMessage func(payload []byte)
 
 //describe device info
 type config interface {
