@@ -100,8 +100,29 @@ func SetValue(key string, value []byte) error
  * data:     @data 键值
  * err:      @err 成功返回nil,  失败返回错误信息.
  */
- */
 func GetValue(key string) (data []byte,err error)
+/*
+ * 广播消息
+ *
+ *
+ * 阻塞接口.
+ * data:     @data 消息（自定义）
+ * err:      @err 成功返回nil,  失败返回错误信息.
+ */
+func BroadcastReport(data []byte) error {
+	return getSessionIns().publish(broadcastTopic, data)
+}
+
+/*
+ * 订阅广播消息
+ *
+ *
+ * 阻塞接口.
+ * call:     @call 广播消息回调
+ */
+func SetBroadcastCall(call NotifyMessage) {
+	getSessionIns().setBroadcast(call)
+}
 
 ```
 
