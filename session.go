@@ -448,6 +448,7 @@ func (s *session) getDriverInfo() (*driverResult, error) {
 	if err != nil {
 		return result, err
 	}
+	s.logger.Info("get driver info:", string(content))
 	result = &driverResult{}
 	err = json.Unmarshal(content, result)
 	if err != nil {

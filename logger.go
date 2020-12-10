@@ -32,20 +32,33 @@ type Logger interface {
 	Error(a ...interface{})
 }
 type logger struct {
+	open bool
 }
 
 func newLogger() Logger {
+	open := os.Getenv("EDGE_ENABLE_LOG")
+	if open == "true" {
+		return &logger{open: true}
+	}
 	return &logger{}
 }
 func (l *logger) Debug(a ...interface{}) {
-	fmt.Fprintln(os.Stdout, a...)
+	if l.open {
+		fmt.Fprintln(os.Stdout, a...)
+	}
 }
 func (l *logger) Info(a ...interface{}) {
-	fmt.Fprintln(os.Stdout, a...)
+	if l.open {
+		fmt.Fprintln(os.Stdout, a...)
+	}
 }
 func (l *logger) Warn(a ...interface{}) {
-	fmt.Fprintln(os.Stdout, a...)
+	if l.open {
+		fmt.Fprintln(os.Stdout, a...)
+	}
 }
 func (l *logger) Error(a ...interface{}) {
-	fmt.Fprintln(os.Stderr, a...)
+	if l.open {
+		fmt.Fprintln(os.Stderr, a...)
+	}
 }

@@ -18,6 +18,7 @@
 
 ## 设备驱动SDK接口
 调试（环境变量）
+- EDGE_ENABLE_LOG 日志开关（true/false）
 - EDGE_APP_ID 驱动id
 - EDGE_DEVICE_ID 边设备id
 - EDGE_THING_ID 边设备模型id
