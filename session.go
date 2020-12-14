@@ -253,13 +253,13 @@ func (s *session) getEdgeInfo() (*edgeDevInfo, error) {
 	}
 	for k, v := range result {
 		switch {
-		case strings.Contains(k, "device_id"):
+		case strings.Contains(k, "deviceId"):
 			response.Id = v
-		case strings.Contains(k, "edge_id"):
-		case strings.Contains(k, "thing_id"):
+		case strings.Contains(k, "edgeId"):
+		case strings.Contains(k, "thingId"):
 			response.ThingId = v
-		case strings.Contains(k, "edge_version"):
-		case strings.Contains(k, "user_id"):
+		case strings.Contains(k, "edgeVersion"):
+		case strings.Contains(k, "userId"):
 		}
 	}
 	return response, err
