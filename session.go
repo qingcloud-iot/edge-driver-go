@@ -95,6 +95,12 @@ func (s *session) init() {
 	s.deviceId = os.Getenv("EDGE_DEVICE_ID")
 	s.thingId = os.Getenv("EDGE_THING_ID")
 	if s.deviceId == "" || s.thingId == "" {
+		if resp, err := s.getEdgeInfo(); err != nil {
+			panic("[sdk] edge device get edge info error!")
+		} else {
+			s.deviceId = resp.Id
+			s.thingId = resp.ThingId
+		}
 		s.logger.Warn("[sdk] edge device id or thing id is not set!")
 	}
 	options := mqtt.NewClientOptions()
