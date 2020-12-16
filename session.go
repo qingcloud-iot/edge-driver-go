@@ -95,7 +95,7 @@ func (s *session) init() {
 	s.deviceId = os.Getenv("EDGE_DEVICE_ID")
 	s.thingId = os.Getenv("EDGE_THING_ID")
 	if s.deviceId == "" || s.thingId == "" {
-		panic("[sdk] edge device id or thing id is not set!")
+		s.logger.Warn("[sdk] edge device id or thing id is not set!")
 	}
 	options := mqtt.NewClientOptions()
 	options.AddBroker(hubAddress).
