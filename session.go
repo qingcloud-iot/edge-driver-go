@@ -18,7 +18,6 @@ package edge_driver_go
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"io/ioutil"
@@ -74,7 +73,9 @@ func (s *session) init() {
 	}
 	if s.driverId == "" {
 		if os.Getenv("EDGE_APP_ID") == "" {
-			panic(errors.New("driver id is not set,sdk can't run!"))
+			//todo not panic
+			s.driverId = "default"
+			s.logger.Warn(fmt.Sprintf("[sdk] session not set driver id:%s", s.driverId))
 		} else {
 			s.driverId = os.Getenv("EDGE_APP_ID")
 		}
@@ -94,7 +95,7 @@ func (s *session) init() {
 	s.deviceId = os.Getenv("EDGE_DEVICE_ID")
 	s.thingId = os.Getenv("EDGE_THING_ID")
 	if s.deviceId == "" || s.thingId == "" {
-		panic("edge device id or thing id is not set!")
+		panic("[sdk] edge device id or thing id is not set!")
 	}
 	options := mqtt.NewClientOptions()
 	options.AddBroker(hubAddress).
@@ -111,7 +112,7 @@ func (s *session) init() {
 				s.connectLostCall(err)
 			}
 			if s.logger != nil {
-				s.logger.Info("connect lost")
+				s.logger.Info("[sdk] connect lost")
 			}
 		}).
 		SetOnConnectHandler(func(client mqtt.Client) {
@@ -121,7 +122,7 @@ func (s *session) init() {
 				t, err := msg.parseConfigType(i.Topic())
 				if err != nil {
 					if s.logger != nil {
-						s.logger.Warn("connect lost")
+						s.logger.Warn("[sdk] connect lost")
 					}
 					return
 				}

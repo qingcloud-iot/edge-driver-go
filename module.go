@@ -133,6 +133,26 @@ func ReportEdgeProperties(ctx context.Context, params Metadata) (err error) {
 	}
 }
 
+//report edge device property
+func ReportBaseEdgeProperties(ctx context.Context, params Metadata) (err error) {
+	done := wait(func() error {
+		var (
+			topic string
+			msg   message
+			data  []byte
+		)
+		topic = msg.buildPlatformPropertyTopic(getSessionIns().getDeviceId(), getSessionIns().getThingId())
+		data = msg.buildPropertyMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), params)
+		return getSessionIns().publish(topic, data)
+	})
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return rpcTimeout
+	}
+}
+
 //report edge device event
 func ReportEdgeEvent(ctx context.Context, eventId string, params Metadata) (err error) {
 	done := wait(func() error {

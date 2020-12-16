@@ -28,18 +28,19 @@ const (
 	configLen      = 5 //config topic len
 )
 const (
-	deviceSetProperty          = "/sys/%s/%s/thing/property/base/set"
-	deviceGetProperty          = "/sys/%s/%s/thing/property/base/get"
-	deviceService              = "/sys/%s/%s/thing/service/%s/call"
-	deviceStatusReport         = "/as/mqtt/status/%s/%s"
-	devicePropertiesReport     = "/sys/%s/%s/thing/property/base/post"
-	userDevicePropertiesReport = "/sys/%s/%s/user/msg"
-	userDeviceService          = "/sys/%s/%s/user/down/+/call"
-	deviceEventsReport         = "/sys/%s/%s/thing/event/%s/post"
-	deviceInfoReport           = "/sys/%s/%s/thing/deviceinfo/post"
-	configChange               = "/iot/internal/%s/notify"
-	broadcastTopic             = "/iot/edge/broadcast/notify"
-	deviceDiscoveryReport      = "/sys/%s/device/discovery/post"
+	deviceSetProperty              = "/sys/%s/%s/thing/property/base/set"
+	deviceGetProperty              = "/sys/%s/%s/thing/property/base/get"
+	deviceService                  = "/sys/%s/%s/thing/service/%s/call"
+	deviceStatusReport             = "/as/mqtt/status/%s/%s"
+	devicePropertiesReport         = "/sys/%s/%s/thing/property/base/post"
+	devicePlatformPropertiesReport = "/sys/%s/%s/thing/property/platform/post"
+	userDevicePropertiesReport     = "/sys/%s/%s/user/msg"
+	userDeviceService              = "/sys/%s/%s/user/down/+/call"
+	deviceEventsReport             = "/sys/%s/%s/thing/event/%s/post"
+	deviceInfoReport               = "/sys/%s/%s/thing/deviceinfo/post"
+	configChange                   = "/iot/internal/%s/notify"
+	broadcastTopic                 = "/iot/edge/broadcast/notify"
+	deviceDiscoveryReport          = "/sys/%s/device/discovery/post"
 )
 
 type message struct {
@@ -87,6 +88,11 @@ func (m message) buildServiceTopic(deviceId, thingId string, services []string) 
 //build device property topic
 func (m message) buildPropertyTopic(deviceId, thingId string) string {
 	return fmt.Sprintf(devicePropertiesReport, thingId, deviceId)
+}
+
+//build platform device property topic
+func (m message) buildPlatformPropertyTopic(deviceId, thingId string) string {
+	return fmt.Sprintf(devicePlatformPropertiesReport, thingId, deviceId)
 }
 
 //build device property topic
