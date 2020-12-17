@@ -101,7 +101,7 @@ func (s *session) init() {
 			s.deviceId = resp.Id
 			s.thingId = resp.ThingId
 		}
-		s.logger.Warn("[sdk] edge device id or thing id is not set!")
+		//s.logger.Warn("[sdk] edge device id or thing id is not set!")
 	}
 	options := mqtt.NewClientOptions()
 	options.AddBroker(hubAddress).
