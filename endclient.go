@@ -389,7 +389,10 @@ func (e *endClient) ReportProperties(ctx context.Context, params Metadata) error
 			return err
 		}
 		topic = msg.buildPropertyTopic(e.config.DeviceId(), e.config.ThingId())
-		data = msg.buildPropertyMsg(e.config.DeviceId(), e.config.ThingId(), params)
+		data, err = msg.buildPropertyMsg(e.config.DeviceId(), e.config.ThingId(), params)
+		if err != nil {
+			return err
+		}
 		return getSessionIns().publish(topic, data)
 	})
 	select {

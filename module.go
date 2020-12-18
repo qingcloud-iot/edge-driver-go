@@ -122,7 +122,10 @@ func ReportEdgeProperties(ctx context.Context, params Metadata) (err error) {
 			data  []byte
 		)
 		topic = msg.buildPropertyTopic(getSessionIns().getDeviceId(), getSessionIns().getThingId())
-		data = msg.buildPropertyMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), params)
+		data, err = msg.buildPropertyMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), params)
+		if err != nil {
+			return err
+		}
 		return getSessionIns().publish(topic, data)
 	})
 	select {
@@ -142,7 +145,10 @@ func ReportBaseEdgeProperties(ctx context.Context, params Metadata) (err error) 
 			data  []byte
 		)
 		topic = msg.buildPlatformPropertyTopic(getSessionIns().getDeviceId(), getSessionIns().getThingId())
-		data = msg.buildPropertyMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), params)
+		data, err = msg.buildPropertyMsg(getSessionIns().getDeviceId(), getSessionIns().getThingId(), params)
+		if err != nil {
+			return err
+		}
 		return getSessionIns().publish(topic, data)
 	})
 	select {

@@ -120,7 +120,7 @@ func (m message) buildHeartbeatMsg(deviceId, thingId, status string) []byte {
 }
 
 //build device property data
-func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byte {
+func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) ([]byte, error) {
 	id := uuid.NewV4().String()
 	params := make(map[string]interface{})
 	t := time.Now().UnixNano() / 1e6
@@ -143,8 +143,8 @@ func (m message) buildPropertyMsg(deviceId, thingId string, meta Metadata) []byt
 		},
 		Params: params,
 	}
-	buf, _ := json.Marshal(message)
-	return buf
+	//buf, err := json.Marshal(message)
+	return json.Marshal(message)
 }
 
 //build device property data
