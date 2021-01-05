@@ -1,28 +1,21 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	edge_driver_go "github.com/qingcloud-iot/edge-driver-go"
+	"os"
 	"time"
 )
 
 func main() {
-	err := edge_driver_go.SetValue("time", []byte("{\"key\":\"xxx\"}"))
-	if err != nil {
-		fmt.Print(err)
+	os.Setenv("EDGE_DEVICE_ID", "iott-k1y5aPNXqY")
+	os.Setenv("EDGE_THING_ID", "iotd-2bc3ba1a-b325-4b13-a665-011d2fec2724")
+	for {
+		err := edge_driver_go.ReportEdgeProperties(context.Background(), edge_driver_go.Metadata{"A1": "A1", "B1": "B1", "C1": "C1"})
+		if err != nil {
+			fmt.Println(err)
+		}
+		time.Sleep(3 * time.Second)
 	}
-	resp, err := edge_driver_go.GetValue("time")
-	if err != nil {
-		fmt.Print(err)
-	} else {
-		fmt.Println(string(resp))
-	}
-	edge_driver_go.SetBroadcastCall(func(payload []byte) {
-		fmt.Println(string(payload))
-	})
-	err = edge_driver_go.BroadcastReport([]byte("hello world!"))
-	if err != nil {
-		fmt.Print(err)
-	}
-	time.Sleep(3 * time.Second)
 }

@@ -36,40 +36,42 @@ func newDataValidate() validate {
 }
 
 func (v *dataValidate) validateProperties(ctx context.Context, deviceId string, metadata Metadata) (Metadata, error) {
-	var (
-		thing *ThingModel
-		resp  Metadata
-		err   error
-	)
-	resp = make(Metadata, 0)
-	if thing, err = getSessionIns().getModel(deviceId); err != nil {
-		return resp, err
-	}
-	for k, _ := range metadata {
-		if _, ok := thing.Properties[k]; !ok {
-			continue
-		}
-		resp[k] = metadata[k]
-	}
-	return resp, nil
+	return metadata, nil
+	//var (
+	//	thing *ThingModel
+	//	resp  Metadata
+	//	err   error
+	//)
+	//resp = make(Metadata, 0)
+	//if thing, err = getSessionIns().getModel(deviceId); err != nil {
+	//	return resp, err
+	//}
+	//for k, _ := range metadata {
+	//	if _, ok := thing.Properties[k]; !ok {
+	//		continue
+	//	}
+	//	resp[k] = metadata[k]
+	//}
+	//return resp, nil
 }
 func (v *dataValidate) validatePropertiesEx(ctx context.Context, deviceId string, metadata MetadataMsg) (MetadataMsg, error) {
-	var (
-		thing *ThingModel
-		resp  MetadataMsg
-		err   error
-	)
-	resp = make(MetadataMsg, 0)
-	if thing, err = getSessionIns().getModel(deviceId); err != nil {
-		return resp, err
-	}
-	for k, _ := range metadata {
-		if _, ok := thing.Properties[k]; !ok {
-			continue
-		}
-		resp[k] = metadata[k]
-	}
-	return resp, nil
+	return metadata, nil
+	//var (
+	//	thing *ThingModel
+	//	resp  MetadataMsg
+	//	err   error
+	//)
+	//resp = make(MetadataMsg, 0)
+	//if thing, err = getSessionIns().getModel(deviceId); err != nil {
+	//	return resp, err
+	//}
+	//for k, _ := range metadata {
+	//	if _, ok := thing.Properties[k]; !ok {
+	//		continue
+	//	}
+	//	resp[k] = metadata[k]
+	//}
+	//return resp, nil
 }
 func (v *dataValidate) validateEvent(ctx context.Context, deviceId string, eventName string, metadata Metadata) error {
 	return nil
