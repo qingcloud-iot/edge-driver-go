@@ -184,8 +184,10 @@ type channel struct {
 //sub device info
 type SubDeviceInfo struct {
 	Token       string                 `json:"token"`        //device token
+	Name        string                 `json:"name"`         //device name
 	TokenStatus TokenStatus            `json:"token_status"` //device token status, enable or disable
 	DeviceId    string                 `json:"device_id"`    //device id
+	ThingId     string                 `json:"thing_id"`     //thing id
 	Ext         map[string]interface{} `json:"ext"`          //device custom config
 	ChannelCfg  map[string]interface{} `json:"channel_cfg"`  //sub device config, example
 	ConnectInfo map[string]interface{} `json:"connect_info"` //sub connect info
@@ -225,6 +227,7 @@ type propertyEx struct {
 //sub device info
 type device struct {
 	DeviceId     string                 `json:"deviceId"`
+	DeviceName   string                 `json:"name"`
 	TokenContent string                 `json:"tokenContent"`
 	TokenStatus  string                 `json:"tokenStatus"`
 	ThingId      string                 `json:"thingId"`

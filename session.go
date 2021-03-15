@@ -335,6 +335,7 @@ func (s *session) getConfig() ([]*SubDeviceInfo, error) {
 			Ext:         deviceConfig,
 			ChannelCfg:  channelConfig,
 			ConnectInfo: temp.ConnectInfo,
+			Name:        temp.DeviceName,
 		}
 		if s.logger != nil {
 			s.logger.Info(fmt.Sprintf("[sdk] getSubDevice deviceId:%s,ext:%+v,cfg:%+v", dev.DeviceId, dev.Ext, dev.ChannelCfg))
