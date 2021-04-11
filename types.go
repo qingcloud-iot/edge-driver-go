@@ -53,6 +53,34 @@ func (d DefineType) String() string {
 	}
 }
 
+type EventType int
+
+func (d EventType) String() string {
+	switch d {
+	case 0:
+		return "INFO"
+	case 1:
+		return "WARNING"
+	case 2:
+		return "ERROR"
+	default:
+		return ""
+	}
+}
+
+type ServiceType int
+
+func (d ServiceType) String() string {
+	switch d {
+	case 0:
+		return "SYNC"
+	case 1:
+		return "ASYNC"
+	default:
+		return ""
+	}
+}
+
 const (
 	messageVersion    = "v0.0.1"
 	hubBroker         = "tcp://127.0.0.1:1883"
@@ -199,8 +227,41 @@ type Property struct {
 	Define     map[string]interface{} `json:"define"`
 	Ext        map[string]interface{} `json:"ext"`
 }
+type EventOutMeta struct {
+	Name       string `json:"name"`
+	Identifier string `json:"identifier"`
+	Type       string `json:"type"`
+	Define     []byte `json:"define"`
+}
+type Event struct {
+	Name       string          `json:"name"`
+	Identifier string          `json:"identifier"`
+	Type       string          `json:"type"`
+	Output     []*EventOutMeta `json:"output"`
+}
+type ServiceOutMeta struct {
+	Name       string `json:"name"`
+	Identifier string `json:"identifier"`
+	Type       string `json:"type"`
+	Define     []byte `json:"define"`
+}
+type ServiceInMeta struct {
+	Name       string `json:"name"`
+	Identifier string `json:"identifier"`
+	Type       string `json:"type"`
+	Define     []byte `json:"define"`
+}
+type Service struct {
+	Name       string            `json:"name"`
+	Identifier string            `json:"identifier"`
+	Type       string            `json:"type"`
+	Output     []*ServiceOutMeta `json:"output"`
+	Input      []*ServiceInMeta  `json:"input"`
+}
 type ThingModel struct {
 	Properties map[string]*Property `json:"property"`
+	Events     map[string]*Event    `json:"event"`
+	Services   map[string]*Service  `json:"service"`
 }
 
 //device info
@@ -223,6 +284,37 @@ type propertyEx struct {
 	Define     []byte `json:"define"`
 	Ext        []byte `json:"ext"`
 }
+type EventOutMetaEx struct {
+	Name       string `json:"name"`
+	Identifier string `json:"identifier"`
+	Type       int    `json:"type"`
+	Define     []byte `json:"define"`
+}
+type eventEx struct {
+	Name       string            `json:"name"`
+	Identifier string            `json:"identifier"`
+	Type       int               `json:"type"`
+	Output     []*EventOutMetaEx `json:"output"`
+}
+type ServiceOutMetaEx struct {
+	Name       string `json:"name"`
+	Identifier string `json:"identifier"`
+	Type       int    `json:"type"`
+	Define     []byte `json:"define"`
+}
+type ServiceInMetaEx struct {
+	Name       string `json:"name"`
+	Identifier string `json:"identifier"`
+	Type       int    `json:"type"`
+	Define     []byte `json:"define"`
+}
+type ServiceEx struct {
+	Name       string              `json:"name"`
+	Identifier string              `json:"identifier"`
+	Type       int                 `json:"type"`
+	Output     []*ServiceOutMetaEx `json:"output"`
+	Input      []*ServiceInMetaEx  `json:"input"`
+}
 
 //sub device info
 type device struct {
@@ -233,6 +325,8 @@ type device struct {
 	ThingId      string                 `json:"thingId"`
 	ConnectInfo  map[string]interface{} `json:"extendInfo"`
 	Properties   []*propertyEx          `json:"property"`
+	Events       []*eventEx             `json:"event"`
+	Services     []*ServiceEx           `json:"service"`
 }
 
 //driver info

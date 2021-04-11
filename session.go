@@ -381,6 +381,8 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 	)
 	response = &ThingModel{
 		Properties: make(map[string]*Property, 0),
+		Events:     make(map[string]*Event, 0),
+		Services:   make(map[string]*Service, 0),
 	}
 	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
 		request = fmt.Sprintf(subDeviceRequest, metadataBroker)
@@ -396,7 +398,7 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 	if err != nil {
 		return response, err
 	}
-	//s.logger.Info(string(content))
+	s.logger.Info(string(content))
 	//todo need fix
 	err = json.Unmarshal(content, &temp)
 	if err != nil {
@@ -422,6 +424,49 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 			}
 		}
 		response.Properties[v.Identifier] = p
+	}
+	for _, v := range temp.Events {
+		p := &Event{
+			Name:       v.Name,
+			Identifier: v.Identifier,
+			Type:       EventType(v.Type).String(),
+			Output:     make([]*EventOutMeta, len(v.Output)),
+		}
+		for k, val := range v.Output {
+			p.Output[k] = &EventOutMeta{
+				Name:       val.Name,
+				Identifier: val.Identifier,
+				Type:       DefineType(val.Type).String(),
+				Define:     val.Define,
+			}
+		}
+		response.Events[v.Identifier] = p
+	}
+	for _, v := range temp.Services {
+		p := &Service{
+			Name:       v.Name,
+			Identifier: v.Identifier,
+			Type:       ServiceType(v.Type).String(),
+			Output:     make([]*ServiceOutMeta, len(v.Output)),
+			Input:      make([]*ServiceInMeta, len(v.Input)),
+		}
+		for k, val := range v.Output {
+			p.Output[k] = &ServiceOutMeta{
+				Name:       val.Name,
+				Identifier: val.Identifier,
+				Type:       DefineType(val.Type).String(),
+				Define:     val.Define,
+			}
+		}
+		for k, val := range v.Input {
+			p.Input[k] = &ServiceInMeta{
+				Name:       val.Name,
+				Identifier: val.Identifier,
+				Type:       DefineType(val.Type).String(),
+				Define:     val.Define,
+			}
+		}
+		response.Services[v.Identifier] = p
 	}
 	return response, err
 }
