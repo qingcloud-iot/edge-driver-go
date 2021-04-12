@@ -221,11 +221,12 @@ type SubDeviceInfo struct {
 	ConnectInfo map[string]interface{} `json:"connect_info"` //sub connect info
 }
 type Property struct {
-	Name       string                 `json:"name"`
-	Identifier string                 `json:"identifier"`
-	Type       string                 `json:"type"`
-	Define     map[string]interface{} `json:"define"`
-	Ext        map[string]interface{} `json:"ext"`
+	Name        string                 `json:"name"`
+	Identifier  string                 `json:"identifier"`
+	Type        string                 `json:"type"`
+	Define      map[string]interface{} `json:"define"`
+	Ext         map[string]interface{} `json:"ext"`
+	Description string                 `json:"description"`
 }
 type EventOutMeta struct {
 	Name       string `json:"name"`
@@ -234,10 +235,11 @@ type EventOutMeta struct {
 	Define     []byte `json:"define"`
 }
 type Event struct {
-	Name       string          `json:"name"`
-	Identifier string          `json:"identifier"`
-	Type       string          `json:"type"`
-	Output     []*EventOutMeta `json:"output"`
+	Name        string          `json:"name"`
+	Identifier  string          `json:"identifier"`
+	Type        string          `json:"type"`
+	Description string          `json:"description"`
+	Output      []*EventOutMeta `json:"output"`
 }
 type ServiceOutMeta struct {
 	Name       string `json:"name"`
@@ -252,11 +254,12 @@ type ServiceInMeta struct {
 	Define     []byte `json:"define"`
 }
 type Service struct {
-	Name       string            `json:"name"`
-	Identifier string            `json:"identifier"`
-	Type       string            `json:"type"`
-	Output     []*ServiceOutMeta `json:"output"`
-	Input      []*ServiceInMeta  `json:"input"`
+	Name        string            `json:"name"`
+	Identifier  string            `json:"identifier"`
+	Type        string            `json:"type"`
+	Description string            `json:"description"`
+	Output      []*ServiceOutMeta `json:"output"`
+	Input       []*ServiceInMeta  `json:"input"`
 }
 type ThingModel struct {
 	Properties map[string]*Property `json:"property"`
@@ -278,11 +281,12 @@ type deviceMsg struct {
 	Meta     map[string]interface{} `json:"meta"`
 }
 type propertyEx struct {
-	Name       string `json:"name"`
-	Identifier string `json:"identifier"`
-	Type       int    `json:"type"`
-	Define     []byte `json:"define"`
-	Ext        []byte `json:"ext"`
+	Name        string `json:"name"`
+	Identifier  string `json:"identifier"`
+	Type        int    `json:"type"`
+	Define      []byte `json:"define"`
+	Ext         []byte `json:"ext"`
+	Description string `json:"description"`
 }
 type EventOutMetaEx struct {
 	Name       string `json:"name"`
@@ -291,10 +295,11 @@ type EventOutMetaEx struct {
 	Define     []byte `json:"define"`
 }
 type eventEx struct {
-	Name       string            `json:"name"`
-	Identifier string            `json:"identifier"`
-	Type       int               `json:"type"`
-	Output     []*EventOutMetaEx `json:"output"`
+	Name        string            `json:"name"`
+	Identifier  string            `json:"identifier"`
+	Type        int               `json:"type"`
+	Output      []*EventOutMetaEx `json:"output"`
+	Description string            `json:"description"`
 }
 type ServiceOutMetaEx struct {
 	Name       string `json:"name"`
@@ -309,11 +314,12 @@ type ServiceInMetaEx struct {
 	Define     []byte `json:"define"`
 }
 type ServiceEx struct {
-	Name       string              `json:"name"`
-	Identifier string              `json:"identifier"`
-	Type       int                 `json:"type"`
-	Output     []*ServiceOutMetaEx `json:"output"`
-	Input      []*ServiceInMetaEx  `json:"input"`
+	Name        string              `json:"name"`
+	Identifier  string              `json:"identifier"`
+	Type        int                 `json:"type"`
+	Output      []*ServiceOutMetaEx `json:"output"`
+	Input       []*ServiceInMetaEx  `json:"input"`
+	Description string              `json:"description"`
 }
 
 //sub device info

@@ -407,11 +407,12 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 	}
 	for _, v := range temp.Properties {
 		p := &Property{
-			Name:       v.Name,
-			Identifier: v.Identifier,
-			Type:       DefineType(v.Type).String(),
-			Define:     make(map[string]interface{}),
-			Ext:        make(map[string]interface{}),
+			Name:        v.Name,
+			Identifier:  v.Identifier,
+			Description: v.Description,
+			Type:        DefineType(v.Type).String(),
+			Define:      make(map[string]interface{}),
+			Ext:         make(map[string]interface{}),
 		}
 		if v.Define != nil {
 			if err = json.Unmarshal(v.Define, &p.Define); err != nil {
@@ -427,10 +428,11 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 	}
 	for _, v := range temp.Events {
 		p := &Event{
-			Name:       v.Name,
-			Identifier: v.Identifier,
-			Type:       EventType(v.Type).String(),
-			Output:     make([]*EventOutMeta, len(v.Output)),
+			Name:        v.Name,
+			Identifier:  v.Identifier,
+			Type:        EventType(v.Type).String(),
+			Description: v.Description,
+			Output:      make([]*EventOutMeta, len(v.Output)),
 		}
 		for k, val := range v.Output {
 			p.Output[k] = &EventOutMeta{
@@ -444,11 +446,12 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 	}
 	for _, v := range temp.Services {
 		p := &Service{
-			Name:       v.Name,
-			Identifier: v.Identifier,
-			Type:       ServiceType(v.Type).String(),
-			Output:     make([]*ServiceOutMeta, len(v.Output)),
-			Input:      make([]*ServiceInMeta, len(v.Input)),
+			Name:        v.Name,
+			Identifier:  v.Identifier,
+			Type:        ServiceType(v.Type).String(),
+			Description: v.Description,
+			Output:      make([]*ServiceOutMeta, len(v.Output)),
+			Input:       make([]*ServiceInMeta, len(v.Input)),
 		}
 		for k, val := range v.Output {
 			p.Output[k] = &ServiceOutMeta{
