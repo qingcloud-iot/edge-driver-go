@@ -338,10 +338,13 @@ func (s *session) getSubDevice(id string) (*device, error) {
 	)
 	response = &device{}
 	if val := os.Getenv("EDGE_META_ADDRESS"); val == "" {
+		// request = fmt.Sprintf("%s/test/data/childDevice/", metadataBroker)
 		request = fmt.Sprintf(subDeviceRequest, metadataBroker)
 	} else {
+		// request = fmt.Sprintf("%s/test/data/childDevice/", val)
 		request = fmt.Sprintf(subDeviceRequest, val)
 	}
+	// resp, err = s.metadataClient.Get(request + id + "/get")
 	resp, err = s.metadataClient.Get(request + id)
 	if err != nil {
 		return response, err
@@ -351,7 +354,26 @@ func (s *session) getSubDevice(id string) (*device, error) {
 	if err != nil {
 		return response, err
 	}
+	// 单值情况
 	err = json.Unmarshal(content, response)
+	if err != nil {
+		return nil, err
+	}
+	if response.TokenContent != "" {
+		return response, err
+	}
+
+	// 多值情况
+	kv := make(map[string]*device)
+	err = json.Unmarshal(content, &kv)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range kv {
+		if v.DeviceId == id {
+			return v, nil
+		}
+	}
 	return response, err
 }
 func (s *session) getModel(id string) (*ThingModel, error) {
