@@ -414,27 +414,69 @@ func (s *session) getModel(id string) (*ThingModel, error) {
 		s.logger.Error("json unmarshal error", string(content))
 		return response, err
 	}
-	for _, v := range temp.Properties {
-		p := &Property{
-			Name:       v.Name,
-			Identifier: v.Identifier,
-			Type:       DefineType(v.Type).String(),
-			Define:     make(map[string]interface{}),
-			Ext:        make(map[string]interface{}),
+
+	if temp.TokenContent != "" {
+		// 单值情况
+		for _, v := range temp.Properties {
+			p := &Property{
+				Name:       v.Name,
+				Identifier: v.Identifier,
+				Type:       DefineType(v.Type).String(),
+				Define:     make(map[string]interface{}),
+				Ext:        make(map[string]interface{}),
+			}
+			if v.Define != nil {
+				if err = json.Unmarshal(v.Define, &p.Define); err != nil {
+					continue
+				}
+			}
+			if v.Ext != nil {
+				if err = json.Unmarshal(v.Ext, &p.Ext); err != nil {
+					continue
+				}
+			}
+			response.Properties[v.Identifier] = p
 		}
-		if v.Define != nil {
-			if err = json.Unmarshal(v.Define, &p.Define); err != nil {
-				continue
+		return response, err
+	} else {
+		// 多值情况
+		kv := make(map[string]string)
+		err = json.Unmarshal(content, &kv)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range kv {
+			d := &device{}
+			err = json.Unmarshal([]byte(v), d)
+			if err != nil {
+				return nil, err
+			}
+			if d.DeviceId == id {
+				for _, v := range d.Properties {
+					p := &Property{
+						Name:       v.Name,
+						Identifier: v.Identifier,
+						Type:       DefineType(v.Type).String(),
+						Define:     make(map[string]interface{}),
+						Ext:        make(map[string]interface{}),
+					}
+					if v.Define != nil {
+						if err = json.Unmarshal(v.Define, &p.Define); err != nil {
+							continue
+						}
+					}
+					if v.Ext != nil {
+						if err = json.Unmarshal(v.Ext, &p.Ext); err != nil {
+							continue
+						}
+					}
+					response.Properties[v.Identifier] = p
+				}
+				return response, err
 			}
 		}
-		if v.Ext != nil {
-			if err = json.Unmarshal(v.Ext, &p.Ext); err != nil {
-				continue
-			}
-		}
-		response.Properties[v.Identifier] = p
 	}
-	return response, err
+	return nil, errors.New("no ssuch thing model")
 }
 func (s *session) getDriver() (string, error) {
 	resp, err := s.getDriverInfo()
