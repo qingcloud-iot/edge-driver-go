@@ -367,18 +367,15 @@ func (s *session) getSubDevice(id string) (*device, error) {
 	kv := make(map[string]string)
 	err = json.Unmarshal(content, &kv)
 	if err != nil {
-		fmt.Println("============1111", err.Error())
 		return nil, err
 	}
 	for _, v := range kv {
 		d := &device{}
 		err = json.Unmarshal([]byte(v), d)
 		if err != nil {
-			fmt.Println("============22222", err.Error())
 			return nil, err
 		}
 		if d.DeviceId == id {
-			fmt.Println("============33333")
 			return d, nil
 		}
 	}
