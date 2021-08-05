@@ -14,12 +14,15 @@ func init() {
 func main() {
 	subs, err := edge_driver_go.GetConfig()
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
+	fmt.Println(len(subs))
 
 	var wg sync.WaitGroup
 	wg.Add(len(subs))
 	for _, v := range subs {
+		fmt.Println(v.TokenStatus)
 		if v.TokenStatus == edge_driver_go.Enable {
 			go func(token string) {
 				defer func() {

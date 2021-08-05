@@ -302,6 +302,10 @@ func (e *endClient) Online(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		err = getSessionIns().registerEndClient(e)
+		if err != nil {
+			return err
+		}
 		return e.init()
 	})
 	select {

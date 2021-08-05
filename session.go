@@ -39,13 +39,19 @@ var (
 func getSessionIns() *session {
 	_once.Do(func() {
 		_ins = &session{
-			client: nil,
-			status: hubNotConnected,
-			logger: newLogger(),
+			client:  nil,
+			status:  hubNotConnected,
+			logger:  newLogger(),
+			endList: make([]*endClient, 0),
 		}
 		_ins.init()
 	})
 	return _ins
+}
+
+type desc struct {
+	clientDeviceId string
+	clientThingId  string
 }
 
 //module api
@@ -56,6 +62,7 @@ type session struct {
 	version        string
 	deviceId       string
 	thingId        string
+	endList []*endClient
 	status         uint32           //0:not connected, 1:connected
 	connectLost    ConnectLost      //connect lost callback
 	configChange   ConfigChangeFunc //config change
@@ -115,6 +122,40 @@ func (s *session) init() {
 		}).
 		SetOnConnectHandler(func(client mqtt.Client) {
 			atomic.StoreUint32(&s.status, hubConnected)
+			for _, e := range s.endList {
+				clientDeviceId := e.config.DeviceId()
+				clientThingId := e.config.ThingId()
+				var msg message
+				if isUserDevice(clientDeviceId) {
+					err := s.subscribe(msg.buildUserServiceTopic(clientDeviceId, clientThingId), e.userCall)
+					if err != nil {
+						if s.logger != nil {
+							s.logger.Warn(fmt.Sprintf("subscribe user service topic failed: %v", err))
+						}
+					}
+				} else {
+					//end service
+					err := getSessionIns().subscribe(msg.buildSetTopic(clientDeviceId, clientThingId), e.endCall)
+					if err != nil {
+						if s.logger != nil {
+							s.logger.Warn(fmt.Sprintf("subscribe set property topic failed: %v", err))
+						}
+					}
+					err = getSessionIns().subscribe(msg.buildGetTopic(clientDeviceId, clientThingId), e.getCall)
+					if err != nil {
+						if s.logger != nil {
+							s.logger.Warn(fmt.Sprintf("subscribe get property topic failed: %v", err))
+						}
+					}
+					err = getSessionIns().subscribe(fmt.Sprintf(deviceService, clientThingId, clientDeviceId, "+"), e.endCall)
+					if err != nil {
+						if s.logger != nil {
+							s.logger.Warn(fmt.Sprintf("subscribe device service topic failed: %v", err))
+						}
+					}
+				}
+			}
+
 			client.Subscribe(fmt.Sprintf(configChange, s.driverId), byte(0), func(client mqtt.Client, i mqtt.Message) {
 				var msg message
 				t, err := msg.parseConfigType(i.Topic())
@@ -133,6 +174,24 @@ func (s *session) init() {
 	s.connect(hubAddress, client) //reconnected
 	s.client = client
 }
+
+func (s *session) contains(l []*endClient, e *endClient) bool {
+	for _, a := range l {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *session) registerEndClient(e *endClient) error {
+	if ! s.contains(s.endList, e) {
+		s.endList = append(s.endList, e)
+		s.logger.Info("[sdk] register end device,", e.config.DeviceId(), e.config.ThingId())
+	}
+	return nil
+}
+
 func (s *session) getDriverVersion() string {
 	if s.version == "" {
 		resp, err := s.getDriverInfo()
@@ -146,15 +205,19 @@ func (s *session) getDriverVersion() string {
 		return s.version
 	}
 }
+
 func (s *session) getDriverId() string {
 	return s.driverId
 }
+
 func (s *session) getDeviceId() string {
 	return s.deviceId
 }
+
 func (s *session) getThingId() string {
 	return s.thingId
 }
+
 func (s *session) connect(address string, client mqtt.Client) {
 	for {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
@@ -165,11 +228,13 @@ func (s *session) connect(address string, client mqtt.Client) {
 			continue
 		} else {
 			atomic.StoreUint32(&s.status, hubConnected)
+
 			return
 		}
 	}
 }
 func (s *session) subscribe(topic string, call messageArrived) error {
+	s.logger.Info("[sdk] subscribe topic:", topic)
 	if atomic.LoadUint32(&s.status) == 0 {
 		return notConnected
 	}
